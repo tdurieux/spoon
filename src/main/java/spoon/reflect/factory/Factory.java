@@ -111,6 +111,7 @@ import spoon.support.visitor.GenericTypeAdapter;
 
 import java.lang.annotation.Annotation;
 import java.util.List;
+import spoon.reflect.builder.Builder;
 
 /**
  * Provides the sub-factories required by Spoon.
@@ -782,4 +783,6 @@ public interface Factory {
 	 *  @see QueryFactory#createQuery(Object)
 	 */
 	CtQuery createQuery(Object input);
+
+	Builder Builder();
 }

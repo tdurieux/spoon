@@ -70,6 +70,7 @@ import spoon.reflect.code.CtVariableAccess;
 import spoon.reflect.code.CtVariableRead;
 import spoon.reflect.code.CtVariableWrite;
 import spoon.reflect.code.CtWhile;
+import spoon.reflect.builder.Builder;
 import spoon.reflect.cu.CompilationUnit;
 import spoon.reflect.cu.SourcePosition;
 import spoon.reflect.cu.position.BodyHolderSourcePosition;
@@ -353,6 +354,16 @@ public class FactoryImpl implements Factory, Serializable {
 	}
 
 
+	private transient Builder builder;
+
+	@Override
+	public Builder Builder() {
+		if (builder == null) {
+			builder = new Builder(this);
+		}
+		return builder;
+	}
+
 	/**
 	 * A constructor that takes the parent factory
 	 */
@@ -424,6 +435,7 @@ public class FactoryImpl implements Factory, Serializable {
 	}
 
 	private final CtModel model = new CtModelImpl(this);
+
 
 	@Override
 	public CtModel getModel() {
