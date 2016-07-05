@@ -1,18 +1,18 @@
 package spoon.test.template;
 
-import java.util.Collection;
-
 import spoon.reflect.code.CtBlock;
 import spoon.reflect.code.CtStatement;
 import spoon.template.TemplateParameter;
 
+import java.util.Collection;
+
 public class CheckBoundMatcher {
-	
+
 	public TemplateParameter<Collection<?>> _col_;
 	public TemplateParameter<Integer> _x_;
 	public TemplateParameter<CtBlock> _block_;
 	public TemplateParameter<CtStatement> _stmt_;
-	
+
 	public void matcher1() {
 		if (_col_.S().size() > 10)
 			throw new IndexOutOfBoundsException();
@@ -27,7 +27,7 @@ public class CheckBoundMatcher {
 		if (_x_.S() > 10)
 			throw new IndexOutOfBoundsException();
 	}
-	
+
 	public void matcher4() {
 		if (_x_.S() > _x_.S())
 			throw new IndexOutOfBoundsException();

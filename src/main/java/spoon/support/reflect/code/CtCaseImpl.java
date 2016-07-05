@@ -24,6 +24,7 @@ import spoon.reflect.visitor.CtVisitor;
 import spoon.support.reflect.declaration.CtElementImpl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -48,6 +49,9 @@ public class CtCaseImpl<E> extends CtStatementImpl implements CtCase<E> {
 
 	@Override
 	public List<CtStatement> getStatements() {
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			return Collections.unmodifiableList(statements);
+		}
 		return statements;
 	}
 

@@ -29,6 +29,7 @@ import spoon.reflect.visitor.CtVisitor;
 import spoon.support.reflect.declaration.CtElementImpl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -118,6 +119,9 @@ public class CtLambdaImpl<T> extends CtExpressionImpl<T> implements CtLambda<T> 
 
 	@Override
 	public Set<CtTypeReference<? extends Throwable>> getThrownTypes() {
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			return Collections.unmodifiableSet(thrownTypes);
+		}
 		return thrownTypes;
 	}
 

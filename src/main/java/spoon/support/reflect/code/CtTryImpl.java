@@ -25,6 +25,7 @@ import spoon.reflect.visitor.CtVisitor;
 import spoon.support.reflect.declaration.CtElementImpl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static spoon.reflect.ModelElementContainerDefaultCapacities.CATCH_CASES_CONTAINER_DEFAULT_CAPACITY;
@@ -45,6 +46,9 @@ public class CtTryImpl extends CtStatementImpl implements CtTry {
 
 	@Override
 	public List<CtCatch> getCatchers() {
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			return Collections.unmodifiableList(catchers);
+		}
 		return catchers;
 	}
 

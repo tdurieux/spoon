@@ -336,9 +336,9 @@ public abstract class Substitution {
 		CtConstructor<T> newConstrutor = substitute(targetClass, template, (CtConstructor<T>) sourceConstructor);
 		// remove the implicit constructor if clashing
 		if (newConstrutor.getParameters().isEmpty()) {
-			CtConstructor<?> c = targetClass.getConstructor();
+			CtConstructor<T> c = targetClass.getConstructor();
 			if (c != null && c.isImplicit()) {
-				targetClass.getConstructors().remove(c);
+				targetClass.removeConstructor(c);
 			}
 		}
 		targetClass.addConstructor(newConstrutor);

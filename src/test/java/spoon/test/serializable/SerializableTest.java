@@ -2,10 +2,12 @@ package spoon.test.serializable;
 
 import org.junit.Test;
 import spoon.reflect.code.CtStatement;
+import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtPackage;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.factory.FactoryImpl;
+import spoon.reflect.visitor.CtScanner;
 import spoon.support.DefaultCoreFactory;
 import spoon.support.StandardEnvironment;
 import spoon.support.util.ByteSerialization;
@@ -26,6 +28,16 @@ public class SerializableTest {
 		byte[] ser = ByteSerialization.serialize(sta2);
 		CtStatement des = (CtStatement) ByteSerialization.deserialize(ser);
 
+		new CtScanner() {
+			@Override
+			public void scan(CtElement element) {
+				if (element != null) {
+					element.setFactory(factory);
+				}
+				super.scan(element);
+			}
+		}.scan(des);
+
 		String sigBef = sta2.getSignature();
 		String sigAf = des.getSignature();
 
@@ -34,7 +46,6 @@ public class SerializableTest {
 
 		assertEquals(sigBef, sigAf);
 
-		des.setFactory(factory);
 		String toSBef = sta2.toString();
 		String toSgAf = des.toString();
 

@@ -47,7 +47,9 @@ public class CtBlockImpl<R> extends CtStatementImpl implements CtBlock<R> {
 
 	@Override
 	public List<CtStatement> getStatements() {
-		ensureModifiableStatementsList();
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			return Collections.unmodifiableList(statements);
+		}
 		return this.statements;
 	}
 

@@ -60,6 +60,9 @@ public class CtClassImpl<T extends Object> extends CtTypeImpl<T> implements CtCl
 
 	@Override
 	public List<CtAnonymousExecutable> getAnonymousExecutables() {
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			return Collections.unmodifiableList(anonymousExecutables);
+		}
 		return anonymousExecutables;
 	}
 
@@ -81,6 +84,9 @@ public class CtClassImpl<T extends Object> extends CtTypeImpl<T> implements CtCl
 
 	@Override
 	public Set<CtConstructor<T>> getConstructors() {
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			return Collections.unmodifiableSet(constructors);
+		}
 		return constructors;
 	}
 

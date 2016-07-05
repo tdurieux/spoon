@@ -51,7 +51,7 @@ public class InterfaceFactory extends TypeFactory {
 	public <T> CtInterface<T> create(CtType<T> owner, String simpleName) {
 		CtInterface<T> i = factory.Core().createInterface();
 		i.setSimpleName(simpleName);
-		owner.getNestedTypes().add(i);
+		owner.addNestedType(i);
 		return i;
 	}
 

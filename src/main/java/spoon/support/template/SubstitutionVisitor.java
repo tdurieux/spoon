@@ -106,13 +106,12 @@ public class SubstitutionVisitor extends CtScanner {
 						Object value = Parameters.getValue(template, pname, null);
 						int i = parameter.getParent().getParameters().indexOf(parameter);
 						if (value instanceof List) {
-							List<?> l = (List<?>) value;
-							for (Object p : l) {
-								CtParameter<?> p2 = ((CtParameter<?>) p).clone();
-								p2.setParent(parameter.getParent());
-								parameter.getParent().getParameters().add(i++, p2);
+							final List<CtParameter<?>> copy = new ArrayList<>(parameter.getParent().getParameters());
+							for (CtParameter<?> p : (List<CtParameter<?>>) value) {
+								copy.add(i++, p.clone());
 							}
-							parameter.getParent().getParameters().remove(parameter);
+							parameter.getParent().setParameters(copy);
+							parameter.getParent().removeParameter(parameter);
 						}
 					}
 				}
@@ -205,11 +204,9 @@ public class SubstitutionVisitor extends CtScanner {
 						Object value = Parameters.getValue(template, pname, null);
 						int i = ctClass.getFields().indexOf(field);
 						if (value instanceof List) {
-							List<?> l = (List<?>) value;
-							for (Object f : l) {
-								CtField<?> f2 = ((CtField<?>) f).clone();
-								f2.setParent(ctClass);
-								ctClass.getFields().add(i++, f2);
+							List<CtField<?>> fields = (List<CtField<?>>) value;
+							for (CtField<?> f : fields) {
+								ctClass.addField(i++, ((CtField<?>) f).clone());
 							}
 							ctClass.removeField(field);
 						}
@@ -285,15 +282,19 @@ public class SubstitutionVisitor extends CtScanner {
 						List<CtParameter<?>> l = (List<CtParameter<?>>) value;
 						List<CtExpression<?>> vas = factory.Code().createVariableReads(l);
 						CtAbstractInvocation<?> inv = (CtAbstractInvocation<?>) fieldAccess.getParent();
+						inv.removeArgument(fieldAccess);
+						inv.getExecutable().removeActualTypeArgument(fieldAccess.getType());
+
 						int i = inv.getArguments().indexOf(fieldAccess);
-						inv.getArguments().remove(i);
-						inv.getExecutable().getActualTypeArguments().remove(i);
+						final List<CtExpression<?>> arguments = new ArrayList<>(inv.getArguments());
+						final List<CtTypeReference<?>> actualTypeArguments = new ArrayList<>(inv.getExecutable().getActualTypeArguments());
 						for (CtExpression<?> va : vas) {
-							va.setParent(fieldAccess.getParent());
-							inv.getArguments().add(i, va);
-							inv.getExecutable().getActualTypeArguments().add(i, va.getType());
+							arguments.add(i, va);
+							actualTypeArguments.add(i, va.getType());
 							i++;
 						}
+						inv.setArguments(arguments);
+						inv.getExecutable().setActualTypeArguments(actualTypeArguments);
 					} else if ((value != null) && value.getClass().isArray()) {
 						toReplace.replace(factory.Code().createLiteralArray((Object[]) value));
 					} else {
@@ -366,6 +367,9 @@ public class SubstitutionVisitor extends CtScanner {
 						t = factory.Type().createReference(((Class<T>) o));
 					} else if (o instanceof CtTypeReference) {
 						t = (CtTypeReference<T>) o;
+						final List<CtTypeReference<?>> casts = new ArrayList<>(expression.getTypeCasts());
+						casts.set(i, t);
+						expression.setTypeCasts(casts);
 						expression.getTypeCasts().set(i, t);
 					} else {
 						throw new RuntimeException("unsupported reference substitution");
@@ -515,15 +519,19 @@ public class SubstitutionVisitor extends CtScanner {
 						List<CtParameter<?>> l = (List<CtParameter<?>>) value;
 						List<CtExpression<?>> vas = factory.Code().createVariableReads(l);
 						CtAbstractInvocation<?> inv = (CtAbstractInvocation<?>) variableAccess.getParent();
+						inv.removeArgument(variableAccess);
+						inv.getExecutable().removeActualTypeArgument(variableAccess.getType());
+
 						int i = inv.getArguments().indexOf(variableAccess);
-						inv.getArguments().remove(i);
-						inv.getExecutable().getActualTypeArguments().remove(i);
+						final List<CtExpression<?>> arguments = new ArrayList<>(inv.getArguments());
+						final List<CtTypeReference<?>> actualTypeArguments = new ArrayList<>(inv.getExecutable().getActualTypeArguments());
 						for (CtExpression<?> va : vas) {
-							va.setParent(variableAccess.getParent());
-							inv.getArguments().add(i, va);
-							inv.getExecutable().getActualTypeArguments().add(i, va.getType());
+							arguments.add(i, va);
+							actualTypeArguments.add(i, va.getType());
 							i++;
 						}
+						inv.setArguments(arguments);
+						inv.getExecutable().setActualTypeArguments(actualTypeArguments);
 						throw new SkipException(variableAccess);
 					}
 					// replace variable accesses names

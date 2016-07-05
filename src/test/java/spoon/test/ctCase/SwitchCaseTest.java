@@ -1,13 +1,6 @@
 package spoon.test.ctCase;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static spoon.testing.utils.ModelUtils.build;
-
-import java.util.List;
-
 import org.junit.Test;
-
 import spoon.reflect.code.CtCase;
 import spoon.reflect.code.CtStatement;
 import spoon.reflect.declaration.CtElement;
@@ -15,14 +8,19 @@ import spoon.reflect.factory.Factory;
 import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
 
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static spoon.testing.utils.ModelUtils.build;
+
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class SwitchCaseTest {
 
 	@Test
 	public void insertAfterStatementInSwitchCaseWithoutException() throws Exception {
-		String packageName = "spoon.test.ctCase";
-		String className = "ClassWithSwitchExample";
-		Factory factory = factoryFor(packageName, className);
+		Factory factory = factoryFor("spoon.test.ctCase", "ClassWithSwitchExample");
+		factory.getEnvironment().setBuildStackChanges(true);
 		List<CtCase> elements = elementsOfType(CtCase.class, factory);
 		assertEquals(3, elements.size());
 		CtCase firstCase = elements.get(0);
@@ -37,9 +35,8 @@ public class SwitchCaseTest {
 
 	@Test
 	public void insertBeforeStatementInSwitchCaseWithoutException() throws Exception {
-		String packageName = "spoon.test.ctCase";
-		String className = "ClassWithSwitchExample";
-		Factory factory = factoryFor(packageName, className);
+		Factory factory = factoryFor("spoon.test.ctCase", "ClassWithSwitchExample");
+		factory.getEnvironment().setBuildStackChanges(true);
 		List<CtCase> elements = elementsOfType(CtCase.class, factory);
 		assertEquals(3, elements.size());
 		CtCase firstCase = elements.get(0);

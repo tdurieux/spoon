@@ -30,6 +30,7 @@ import spoon.reflect.reference.CtFieldReference;
 import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.CtVisitor;
 
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -96,6 +97,9 @@ public class CtFieldImpl<T> extends CtNamedElementImpl implements CtField<T> {
 
 	@Override
 	public Set<ModifierKind> getModifiers() {
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			return Collections.unmodifiableSet(modifiers);
+		}
 		return modifiers;
 	}
 
@@ -129,10 +133,10 @@ public class CtFieldImpl<T> extends CtNamedElementImpl implements CtField<T> {
 		if (modifiers == CtElementImpl.<ModifierKind>emptySet()) {
 			this.modifiers = EnumSet.noneOf(ModifierKind.class);
 		}
-		getModifiers().remove(ModifierKind.PUBLIC);
-		getModifiers().remove(ModifierKind.PROTECTED);
-		getModifiers().remove(ModifierKind.PRIVATE);
-		getModifiers().add(visibility);
+		removeModifier(ModifierKind.PUBLIC);
+		removeModifier(ModifierKind.PROTECTED);
+		removeModifier(ModifierKind.PRIVATE);
+		addModifier(visibility);
 		return (C) this;
 	}
 

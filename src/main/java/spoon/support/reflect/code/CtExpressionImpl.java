@@ -22,6 +22,7 @@ import spoon.reflect.reference.CtTypeReference;
 import spoon.support.reflect.declaration.CtElementImpl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static spoon.reflect.ModelElementContainerDefaultCapacities.CASTS_CONTAINER_DEFAULT_CAPACITY;
@@ -39,6 +40,9 @@ public abstract class CtExpressionImpl<T> extends CtCodeElementImpl implements C
 
 	@Override
 	public List<CtTypeReference<?>> getTypeCasts() {
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			return Collections.unmodifiableList(typeCasts);
+		}
 		return typeCasts;
 	}
 

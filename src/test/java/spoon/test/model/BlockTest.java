@@ -1,20 +1,19 @@
 package spoon.test.model;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static spoon.testing.utils.ModelUtils.createFactory;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import org.junit.Test;
-
 import spoon.reflect.code.CtBlock;
 import spoon.reflect.code.CtCodeSnippetStatement;
 import spoon.reflect.code.CtStatement;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.factory.Factory;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static spoon.testing.utils.ModelUtils.createFactory;
 
 public class BlockTest {
 
@@ -60,8 +59,7 @@ public class BlockTest {
 
 		CtCodeSnippetStatement snippet = factory.Core()
 				.createCodeSnippetStatement();
-		List<CtStatement> statements = body.getStatements();
-		statements.add(snippet);
+		body.addStatement(snippet);
 
 		assertEquals(snippet, body.getStatement(0));
 		// plus implicit assertion: no exception
@@ -73,9 +71,8 @@ public class BlockTest {
 		assertEquals(snippet2, body.getStatement(1));
 		assertEquals(2, body.getStatements().size());
 
-		CtCodeSnippetStatement snippet3 = factory.Core()
-				.createCodeSnippetStatement();
-		statements.add(snippet3);
+		CtCodeSnippetStatement snippet3 = factory.Core().createCodeSnippetStatement();
+		body.addStatement(snippet3);
 
 		assertEquals(snippet3, body.getStatement(2));
 		assertEquals(3, body.getStatements().size());

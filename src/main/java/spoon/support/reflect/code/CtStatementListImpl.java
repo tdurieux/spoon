@@ -25,6 +25,7 @@ import spoon.reflect.visitor.CtVisitor;
 import spoon.support.reflect.declaration.CtElementImpl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -42,6 +43,9 @@ public class CtStatementListImpl<R> extends CtCodeElementImpl implements CtState
 
 	@Override
 	public List<CtStatement> getStatements() {
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			return Collections.unmodifiableList(statements);
+		}
 		return statements;
 	}
 

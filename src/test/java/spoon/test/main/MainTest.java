@@ -60,6 +60,7 @@ public class MainTest {
 		String systemClassPath = classpath.substring(0, classpath.length() - 1);
 
 		Launcher launcher = new Launcher();
+		launcher.getFactory().getEnvironment().setBuildStackChanges(true);
 
 		launcher.run(new String[] {
 				"-i", "src/main/java",

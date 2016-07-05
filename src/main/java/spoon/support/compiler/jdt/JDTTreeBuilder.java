@@ -1272,7 +1272,7 @@ public class JDTTreeBuilder extends ASTVisitor {
 				}
 			}
 			if (type.getTypeArguments() != null && type.getTypeArguments().length - 1 <= position && type.getTypeArguments()[position] != null && type.getTypeArguments()[position].length > 0) {
-				currentReference.getActualTypeArguments().clear();
+				currentReference.setActualTypeArguments(null);
 				for (TypeReference typeArgument : type.getTypeArguments()[position]) {
 					if (typeArgument instanceof Wildcard || typeArgument.resolvedType instanceof WildcardBinding || typeArgument.resolvedType instanceof TypeVariableBinding) {
 						currentReference.addActualTypeArgument(buildTypeParameterReference(typeArgument, scope));

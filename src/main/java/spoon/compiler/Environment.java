@@ -335,4 +335,15 @@ public interface Environment {
 	 * true means that no self checks are made.
 	 */
 	void setSelfChecks(boolean skip);
+
+	/**
+	 * Checks if we want to build the stack changes on the AST.
+	 */
+	boolean buildStackChanges();
+
+	/**
+	 * If you set at true this method, you'll stack any changes done on your AST but you can't modify
+	 * list or set returned by the AST.
+	 */
+	void setBuildStackChanges(boolean buildStackChanges);
 }

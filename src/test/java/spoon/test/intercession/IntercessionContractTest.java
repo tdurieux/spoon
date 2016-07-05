@@ -6,6 +6,7 @@ import org.junit.runners.Parameterized;
 import spoon.Launcher;
 import spoon.reflect.ast.IntercessionScanner;
 import spoon.reflect.declaration.CtClass;
+import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.declaration.CtTypedElement;
@@ -22,6 +23,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static org.junit.Assert.fail;
+import static spoon.testing.utils.ModelUtils.createFactory;
 
 @RunWith(Parameterized.class)
 public class IntercessionContractTest {
@@ -122,7 +124,9 @@ public class IntercessionContractTest {
 	public void testContract() throws Throwable {
 		try {
 			// we invoke the setter
-			toTest.invoke(declaringClass.newInstance(), new Object[] { null });
+			final CtElement obj = (CtElement) declaringClass.newInstance();
+			obj.setFactory(createFactory());
+			toTest.invoke(obj, new Object[] { null });
 		} catch (NullPointerException e) {
 			fail("Shouldn't throw NPE.");
 		} catch (InvocationTargetException e) {

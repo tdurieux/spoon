@@ -396,6 +396,14 @@ public class Launcher implements SpoonAPI {
 			sw1.setDefault("false");
 			jsap.registerParameter(sw1);
 
+			// Enable stack changes.
+			sw1 = new Switch("enable-stack-changes");
+			sw1.setShortFlag('s');
+			sw1.setLongFlag("enable-stack-changes");
+			sw1.setHelp("Save changing done on your AST. Default: false.");
+			sw1.setDefault("false");
+			jsap.registerParameter(sw1);
+
 			return jsap;
 		} catch (JSAPException e) {
 			throw new SpoonException(e.getMessage(), e);
@@ -430,6 +438,7 @@ public class Launcher implements SpoonAPI {
 
 		environment.setShouldCompile(jsapActualArgs.getBoolean("compile"));
 		environment.setSelfChecks(jsapActualArgs.getBoolean("disable-model-self-checks"));
+		environment.setBuildStackChanges(jsapActualArgs.getBoolean("enable-stack-changes"));
 
 		if (getArguments().getString("generate-files") != null) {
 			setOutputFilter(getArguments().getString("generate-files").split(":"));

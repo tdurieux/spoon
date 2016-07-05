@@ -22,6 +22,7 @@ import spoon.reflect.visitor.CtVisitor;
 import spoon.support.reflect.declaration.CtElementImpl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static spoon.reflect.ModelElementContainerDefaultCapacities.RESOURCES_CONTAINER_DEFAULT_CAPACITY;
@@ -38,6 +39,9 @@ public class CtTryWithResourceImpl extends CtTryImpl implements CtTryWithResourc
 
 	@Override
 	public List<CtLocalVariable<?>> getResources() {
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			return Collections.unmodifiableList(resources);
+		}
 		return resources;
 	}
 

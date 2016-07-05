@@ -31,6 +31,7 @@ import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.CtScanner;
 import spoon.reflect.visitor.ReferenceFilter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CtBiScannerGenerator extends AbstractProcessor<CtType<?>> {
@@ -86,8 +87,10 @@ public class CtBiScannerGenerator extends AbstractProcessor<CtType<?>> {
 
 					if ("Map".equals(targetInvocation.getExecutable().getType().getSimpleName())) {
 						((CtExpression) replace.getArguments().get(0)).replace(factory.Code().createInvocation(targetInvocation, factory.Executable().createReference("List Map#values()")));
-						replace.getArguments().add(1, factory.Code().createInvocation((CtExpression) replace.getArguments().get(1), factory.Executable().createReference("List Map#values()")));
-						replace.getArguments().remove(2);
+						final List<CtExpression<?>> arguments = new ArrayList<>(replace.getArguments());
+						arguments.add(1, factory.Code().createInvocation((CtExpression) replace.getArguments().get(1), factory.Executable().createReference("List Map#values()")));
+						arguments.remove(2);
+						replace.setArguments(arguments);
 					}
 
 					clone.getBody().getStatement(i).replace(replace);

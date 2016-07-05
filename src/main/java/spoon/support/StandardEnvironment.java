@@ -16,23 +16,9 @@
  */
 package spoon.support;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.xml.sax.SAXException;
-
 import spoon.SpoonException;
 import spoon.compiler.Environment;
 import spoon.compiler.InvalidClassPathException;
@@ -51,6 +37,19 @@ import spoon.reflect.declaration.ParentNotInitializedException;
 import spoon.reflect.factory.Factory;
 import spoon.support.compiler.FileSystemFolder;
 import spoon.support.processing.XmlProcessorProperties;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * This class implements a simple Spoon environment that reports messages in the
@@ -98,6 +97,8 @@ public class StandardEnvironment implements Serializable, Environment {
 	private boolean shouldCompile;
 
 	private boolean skipSelfChecks;
+
+	private boolean buildStackChanges;
 
 	/**
 	 * Creates a new environment with a <code>null</code> default file
@@ -160,6 +161,16 @@ public class StandardEnvironment implements Serializable, Environment {
 	@Override
 	public void setSelfChecks(boolean skip) {
 		skipSelfChecks = skip;
+	}
+
+	@Override
+	public boolean buildStackChanges() {
+		return buildStackChanges;
+	}
+
+	@Override
+	public void setBuildStackChanges(boolean buildStackChanges) {
+		this.buildStackChanges = buildStackChanges;
 	}
 
 	private Level toLevel(String level) {

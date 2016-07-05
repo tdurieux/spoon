@@ -16,9 +16,6 @@
  */
 package spoon.support.compiler;
 
-import java.util.EnumSet;
-import java.util.Set;
-
 import spoon.compiler.ModelBuildingException;
 import spoon.compiler.SpoonCompiler;
 import spoon.reflect.code.CtBlock;
@@ -37,6 +34,9 @@ import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtTypeReference;
 import spoon.support.compiler.jdt.JDTSnippetCompiler;
 import spoon.support.reflect.declaration.CtElementImpl;
+
+import java.util.EnumSet;
+import java.util.Set;
 
 public class SnippetCompilationHelper {
 
@@ -79,7 +79,7 @@ public class SnippetCompilationHelper {
 		CtStatement ret = wrapper.getBody().getStatements().get(0);
 
 		// Clean up
-		c.getPackage().getTypes().remove(c);
+		c.getPackage().removeType(c);
 
 		return ret;
 	}
@@ -114,7 +114,7 @@ public class SnippetCompilationHelper {
 		CtClass<?> w = f.Class().create(WRAPPER_CLASS_NAME);
 
 		// Clean up (delete wrapper from factory)
-		w.getPackage().getTypes().remove(w);
+		w.getPackage().removeType(w);
 
 		CtBlock body = f.Core().createBlock();
 

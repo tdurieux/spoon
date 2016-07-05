@@ -26,6 +26,7 @@ import spoon.reflect.visitor.CtVisitor;
 import spoon.support.reflect.declaration.CtElementImpl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static spoon.reflect.ModelElementContainerDefaultCapacities.CASTS_CONTAINER_DEFAULT_CAPACITY;
@@ -63,6 +64,9 @@ public class CtAssignmentImpl<T, A extends T> extends CtStatementImpl implements
 
 	@Override
 	public List<CtTypeReference<?>> getTypeCasts() {
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			return Collections.unmodifiableList(typeCasts);
+		}
 		return typeCasts;
 	}
 

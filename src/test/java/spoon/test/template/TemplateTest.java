@@ -220,7 +220,7 @@ public class TemplateTest {
 			CtClass<?> klass = factory.Class().get(CheckBound.class);
 			CtIf templateRoot = (CtIf) ((CtMethod) templateKlass.getElements(new NameFilter("matcher6")).get(0)).getBody().getStatement(0);
 			TemplateMatcher matcher = new TemplateMatcher(templateRoot);
-			assertEquals(2, matcher.find(klass).size());
+			assertEquals(1, matcher.find(klass).size());
 		}
 	}
 

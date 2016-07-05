@@ -25,6 +25,7 @@ import spoon.reflect.declaration.ParentNotInitializedException;
 import spoon.reflect.reference.CtPackageReference;
 import spoon.reflect.visitor.CtVisitor;
 
+import java.util.Collections;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -124,6 +125,9 @@ public class CtPackageImpl extends CtNamedElementImpl implements CtPackage {
 
 	@Override
 	public Set<CtPackage> getPackages() {
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			return Collections.unmodifiableSet(packs);
+		}
 		return packs;
 	}
 
@@ -149,6 +153,9 @@ public class CtPackageImpl extends CtNamedElementImpl implements CtPackage {
 
 	@Override
 	public Set<CtType<?>> getTypes() {
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			return Collections.unmodifiableSet(types);
+		}
 		return types;
 	}
 

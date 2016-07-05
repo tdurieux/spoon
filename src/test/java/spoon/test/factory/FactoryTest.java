@@ -54,7 +54,9 @@ public class FactoryTest {
 		final CoreFactory specialCoreFactory = new DefaultCoreFactory() {
 			@Override
 			public <T> CtMethod<T> createMethod() {
-				return new MyCtMethod<T>();
+				final MyCtMethod<T> ctMethod = new MyCtMethod<>();
+				ctMethod.setFactory(getMainFactory());
+				return ctMethod;
 			}
 		};
 
