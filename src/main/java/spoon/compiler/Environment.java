@@ -17,6 +17,8 @@
 package spoon.compiler;
 
 import org.apache.log4j.Level;
+import spoon.diff.Action;
+import spoon.diff.AddAction;
 import spoon.processing.FileGenerator;
 import spoon.processing.ProblemFixer;
 import spoon.processing.ProcessingManager;
@@ -346,4 +348,9 @@ public interface Environment {
 	 * list or set returned by the AST.
 	 */
 	void setBuildStackChanges(boolean buildStackChanges);
+
+	/**
+	 * Push an action on the stack changes.
+	 */
+	void pushToStack(Action action);
 }

@@ -16,6 +16,13 @@
  */
 package spoon.support.reflect.declaration;
 
+import spoon.diff.AddAction;
+import spoon.diff.DeleteAction;
+import spoon.diff.DeleteAllAction;
+import spoon.diff.UpdateAction;
+import spoon.diff.context.ListContext;
+import spoon.diff.context.ObjectContext;
+import spoon.diff.context.SetContext;
 import spoon.reflect.code.CtCodeElement;
 import spoon.reflect.code.CtStatement;
 import spoon.reflect.code.CtStatementList;
@@ -33,6 +40,7 @@ import spoon.support.reflect.eval.VisitorPartialEvaluator;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -99,14 +107,22 @@ public class CtClassImpl<T extends Object> extends CtTypeImpl<T> implements CtCl
 			anonymousExecutables = new ArrayList<>(ANONYMOUS_EXECUTABLES_CONTAINER_DEFAULT_CAPACITY);
 		}
 		e.setParent(this);
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			getFactory().getEnvironment().pushToStack(new AddAction(new ListContext(anonymousExecutables, anonymousExecutables.size()), e));
+		}
 		anonymousExecutables.add(e);
 		return (C) this;
 	}
 
 	@Override
 	public boolean removeAnonymousExecutable(CtAnonymousExecutable e) {
-		return anonymousExecutables != CtElementImpl.<CtAnonymousExecutable>emptyList() && anonymousExecutables
-				.remove(e);
+		if (this.anonymousExecutables == CtElementImpl.<CtAnonymousExecutable>emptyList()) {
+			return false;
+		}
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			getFactory().getEnvironment().pushToStack(new DeleteAction(new ListContext(anonymousExecutables, anonymousExecutables.indexOf(e)), e));
+		}
+		return anonymousExecutables.remove(e);
 	}
 
 	@Override
@@ -122,6 +138,9 @@ public class CtClassImpl<T extends Object> extends CtTypeImpl<T> implements CtCl
 		}
 		if (this.anonymousExecutables == CtElementImpl.<CtAnonymousExecutable>emptyList()) {
 			this.anonymousExecutables = new ArrayList<>(ANONYMOUS_EXECUTABLES_CONTAINER_DEFAULT_CAPACITY);
+		}
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			getFactory().getEnvironment().pushToStack(new DeleteAllAction(new ListContext(anonymousExecutables), new ArrayList<>(anonymousExecutables)));
 		}
 		this.anonymousExecutables.clear();
 		for (CtAnonymousExecutable exec : anonymousExecutables) {
@@ -139,6 +158,9 @@ public class CtClassImpl<T extends Object> extends CtTypeImpl<T> implements CtCl
 		if (this.constructors == CtElementImpl.<CtConstructor<T>>emptySet()) {
 			this.constructors = new TreeSet<>();
 		}
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			getFactory().getEnvironment().pushToStack(new DeleteAllAction(new SetContext(constructors), new HashSet<>(constructors)));
+		}
 		this.constructors.clear();
 		for (CtConstructor<T> constructor : constructors) {
 			addConstructor(constructor);
@@ -154,10 +176,10 @@ public class CtClassImpl<T extends Object> extends CtTypeImpl<T> implements CtCl
 		if (constructors == CtElementImpl.<CtConstructor<T>>emptySet()) {
 			constructors = new TreeSet<>();
 		}
-		// this needs to be done because of the set that needs the constructor's
-		// signature : we should use lists!!!
-		// TODO: CHANGE SETS TO LIST TO AVOID HAVING TO DO THIS
 		constructor.setParent(this);
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			getFactory().getEnvironment().pushToStack(new AddAction(new SetContext(constructors), constructor));
+		}
 		constructors.add(constructor);
 		return (C) this;
 	}
@@ -179,6 +201,9 @@ public class CtClassImpl<T extends Object> extends CtTypeImpl<T> implements CtCl
 	public <C extends CtClass<T>> C setSuperclass(CtTypeReference<?> superClass) {
 		if (superClass != null) {
 			superClass.setParent(this);
+		}
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			getFactory().getEnvironment().pushToStack(new UpdateAction(new ObjectContext(this, "superClass"), superClass, this.superClass));
 		}
 		this.superClass = superClass;
 		return (C) this;
