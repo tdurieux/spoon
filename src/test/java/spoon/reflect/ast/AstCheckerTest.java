@@ -1,6 +1,5 @@
 package spoon.reflect.ast;
 
-import javafx.util.Pair;
 import org.junit.Test;
 import spoon.Launcher;
 import spoon.diff.Action;
@@ -24,6 +23,7 @@ import spoon.support.reflect.cu.CtLineElementComparator;
 import spoon.template.TemplateMatcher;
 import spoon.template.TemplateParameter;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -35,7 +35,7 @@ public class AstCheckerTest {
 	@Test
 	public void testStackChanges() throws Exception {
 		final Launcher launcher = new Launcher();
-		launcher.getEnvironment().setNoClasspath(true);
+		launcher.getModelBuilder().setSourceClasspath(System.getProperty("java.class.path").split(File.pathSeparator));
 		// interfaces.
 		launcher.addInputResource("./src/main/java/spoon/reflect/code");
 		launcher.addInputResource("./src/main/java/spoon/reflect/declaration");
@@ -128,37 +128,32 @@ public class AstCheckerTest {
 
 	private class PushStackInIntercessionChecker extends CtScanner {
 		private final CtInvocation<?> template;
-		private final List<Pair<String, String>> notCandidates;
-		private final List<CtTypeReference<?>> collections;
+		private final List<String> notCandidates;
 		private String result = "";
 		private int count;
 
 		PushStackInIntercessionChecker(Factory factory) {
 			final CtType<Object> templateClass = factory.Type().get(Template.class);
 			template = templateClass.getMethod("templatePush").getBody().getStatement(0);
-			collections = Arrays.asList( //
-					factory.Type().createReference(Collection.class), //
-					factory.Type().createReference(List.class), //
-					factory.Type().createReference(Set.class));
 			notCandidates = Arrays.asList( //
-					new Pair<>("CtLocalVariableImpl", "setAssignment"), //
-					new Pair<>("CtTypeAccessImpl", "setType"), //
-					new Pair<>("CtAnnotationTypeImpl", "addField"), //
-					new Pair<>("CtAnnotationTypeImpl", "addFieldAtTop"), //
-					new Pair<>("CtAnnotationTypeImpl", "removeField"), //
-					new Pair<>("CtExecutableImpl", "removeParameter"), //
-					new Pair<>("CtFieldImpl", "setAssignment"), //
-					new Pair<>("CtCatchVariableReferenceImpl", "setDeclaration"), //
-					new Pair<>("CtLocalVariableReferenceImpl", "setDeclaration"), //
-					new Pair<>("CtTypeParameterReferenceImpl", "addBound"), //
-					new Pair<>("CtTypeParameterReferenceImpl", "removeBound"), //
-					new Pair<>("CtTypeParameterReferenceImpl", "setBounds"), //
-					new Pair<>("CtElementImpl", "setFactory"), //
-					new Pair<>("CtElementImpl", "setPositions"), //
-					new Pair<>("CtElementImpl", "setDocComment"), //
-					new Pair<>("CtStatementListImpl", "setPosition"), //
-					new Pair<>("CtAnnotationImpl", "addValue"), //
-					new Pair<>("CtAnnotationTypeImpl", "setFields") //
+					"CtLocalVariableImpl#setAssignment", //
+					"CtTypeAccessImpl#setType", //
+					"CtAnnotationTypeImpl#addField", //
+					"CtAnnotationTypeImpl#addFieldAtTop", //
+					"CtAnnotationTypeImpl#removeField", //
+					"CtExecutableImpl#removeParameter", //
+					"CtFieldImpl#setAssignment", //
+					"CtCatchVariableReferenceImpl#setDeclaration", //
+					"CtLocalVariableReferenceImpl#setDeclaration", //
+					"CtTypeParameterReferenceImpl#addBound", //
+					"CtTypeParameterReferenceImpl#removeBound", //
+					"CtTypeParameterReferenceImpl#setBounds", //
+					"CtElementImpl#setFactory", //
+					"CtElementImpl#setPositions", //
+					"CtElementImpl#setDocComment", //
+					"CtStatementListImpl#setPosition", //
+					"CtAnnotationImpl#addValue", //
+					"CtAnnotationTypeImpl#setFields" //
 			);
 		}
 
@@ -175,7 +170,7 @@ public class AstCheckerTest {
 		}
 
 		private boolean isNotCandidate(CtMethod<?> candidate) {
-			return "setVisibility".equals(candidate.getSimpleName()) || notCandidates.contains(new Pair<>(candidate.getDeclaringType().getSimpleName(), candidate.getSimpleName()));
+			return "setVisibility".equals(candidate.getSimpleName()) || notCandidates.contains(candidate.getDeclaringType().getSimpleName() + "#" + candidate.getSimpleName());
 		}
 
 		private boolean isDelegateMethod(CtMethod<?> candidate) {
