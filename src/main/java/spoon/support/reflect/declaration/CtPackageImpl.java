@@ -16,6 +16,12 @@
  */
 package spoon.support.reflect.declaration;
 
+import spoon.diff.AddAction;
+import spoon.diff.DeleteAction;
+import spoon.diff.DeleteAllAction;
+import spoon.diff.UpdateAction;
+import spoon.diff.context.ObjectContext;
+import spoon.diff.context.SetContext;
 import spoon.reflect.cu.SourcePosition;
 import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtPackage;
@@ -26,6 +32,7 @@ import spoon.reflect.reference.CtPackageReference;
 import spoon.reflect.visitor.CtVisitor;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -75,6 +82,9 @@ public class CtPackageImpl extends CtNamedElementImpl implements CtPackage {
 		}
 
 		pack.setParent(this);
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			getFactory().getEnvironment().pushToStack(new AddAction(new SetContext(this.packs), pack));
+		}
 		this.packs.add(pack);
 
 		return (T) this;
@@ -101,6 +111,12 @@ public class CtPackageImpl extends CtNamedElementImpl implements CtPackage {
 
 	@Override
 	public boolean removePackage(CtPackage pack) {
+		if (packs == CtElementImpl.<CtPackage>emptySet()) {
+			return false;
+		}
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			getFactory().getEnvironment().pushToStack(new DeleteAction(new SetContext(packs), pack));
+		}
 		return packs.remove(pack);
 	}
 
@@ -165,6 +181,9 @@ public class CtPackageImpl extends CtNamedElementImpl implements CtPackage {
 			this.packs = CtElementImpl.emptySet();
 			return (T) this;
 		}
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			getFactory().getEnvironment().pushToStack(new DeleteAllAction(new SetContext(this.packs), new HashSet<>(this.packs)));
+		}
 		this.packs.clear();
 		for (CtPackage p : packs) {
 			addPackage(p);
@@ -177,6 +196,9 @@ public class CtPackageImpl extends CtNamedElementImpl implements CtPackage {
 		if (types == null || types.isEmpty()) {
 			this.types = CtElementImpl.emptySet();
 			return (T) this;
+		}
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			getFactory().getEnvironment().pushToStack(new DeleteAllAction(new SetContext(this.types), new HashSet<>(this.types)));
 		}
 		this.types.clear();
 		for (CtType<?> t : types) {
@@ -199,13 +221,22 @@ public class CtPackageImpl extends CtNamedElementImpl implements CtPackage {
 			this.types = new TreeSet<>();
 		}
 		type.setParent(this);
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			getFactory().getEnvironment().pushToStack(new AddAction(new SetContext(this.types), type));
+		}
 		types.add(type);
 		return (T) this;
 	}
 
 	@Override
-	public void removeType(CtType<?> type) {
-		types.remove(type);
+	public boolean removeType(CtType<?> type) {
+		if (types == CtElementImpl.<CtType<?>>emptySet()) {
+			return false;
+		}
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			getFactory().getEnvironment().pushToStack(new DeleteAction(new SetContext(types), type));
+		}
+		return types.remove(type);
 	}
 
 	@Override
@@ -235,6 +266,9 @@ public class CtPackageImpl extends CtNamedElementImpl implements CtPackage {
 
 	@Override
 	public <E extends CtShadowable> E setShadow(boolean isShadow) {
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			getFactory().getEnvironment().pushToStack(new UpdateAction(new ObjectContext(this, "isShadow"), isShadow, this.isShadow));
+		}
 		this.isShadow = isShadow;
 		return (E) this;
 	}

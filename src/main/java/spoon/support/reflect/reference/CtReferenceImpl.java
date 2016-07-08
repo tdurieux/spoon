@@ -17,6 +17,8 @@
 package spoon.support.reflect.reference;
 
 import spoon.SpoonException;
+import spoon.diff.UpdateAction;
+import spoon.diff.context.ObjectContext;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.factory.FactoryImpl;
 import spoon.reflect.reference.CtReference;
@@ -50,8 +52,15 @@ public abstract class CtReferenceImpl extends CtElementImpl implements CtReferen
 			throw new SpoonException("A reference can't have a \"?\" in its name.");
 		}
 		Factory factory = getFactory();
+		if (factory == null) {
+			this.simplename = simplename;
+			return (T) this;
+		}
 		if (factory instanceof FactoryImpl) {
 			simplename = ((FactoryImpl) factory).dedup(simplename);
+		}
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			getFactory().getEnvironment().pushToStack(new UpdateAction(new ObjectContext(this, "simplename"), simplename, this.simplename));
 		}
 		this.simplename = simplename;
 		return (T) this;

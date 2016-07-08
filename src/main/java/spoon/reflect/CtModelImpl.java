@@ -16,11 +16,6 @@
  */
 package spoon.reflect;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-
 import spoon.processing.Processor;
 import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtPackage;
@@ -33,6 +28,11 @@ import spoon.reflect.visitor.filter.TypeFilter;
 import spoon.support.QueueProcessingManager;
 import spoon.support.reflect.declaration.CtElementImpl;
 import spoon.support.reflect.declaration.CtPackageImpl;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 public class CtModelImpl implements CtModel {
 
@@ -49,7 +49,7 @@ public class CtModelImpl implements CtModel {
 				public CtElement getParent() throws ParentNotInitializedException {
 					return null;
 				}
-							});
+			});
 		}
 
 		@Override

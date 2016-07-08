@@ -16,6 +16,8 @@
  */
 package spoon.support.reflect.code;
 
+import spoon.diff.UpdateAction;
+import spoon.diff.context.ObjectContext;
 import spoon.reflect.code.CtCodeElement;
 import spoon.reflect.code.CtLoop;
 import spoon.reflect.code.CtStatement;
@@ -35,6 +37,9 @@ public abstract class CtLoopImpl extends CtStatementImpl implements CtLoop {
 	public <T extends CtLoop> T setBody(CtStatement body) {
 		if (body != null) {
 			body.setParent(this);
+		}
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			getFactory().getEnvironment().pushToStack(new UpdateAction(new ObjectContext(this, "body"), body, this.body));
 		}
 		this.body = body;
 		return (T) this;

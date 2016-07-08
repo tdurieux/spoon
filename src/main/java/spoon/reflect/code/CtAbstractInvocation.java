@@ -16,10 +16,10 @@
  */
 package spoon.reflect.code;
 
-import java.util.List;
-
 import spoon.reflect.declaration.CtElement;
 import spoon.reflect.reference.CtExecutableReference;
+
+import java.util.List;
 
 /**
  * This code element defines an abstract invocation on a
@@ -44,7 +44,7 @@ public interface CtAbstractInvocation<T> extends CtElement {
 	/**
 	 * Removes an argument expression from the invocation.
 	 */
-	void removeArgument(CtExpression<?> argument);
+	boolean removeArgument(CtExpression<?> argument);
 
 	/**
 	 * Sets the invocation's arguments.

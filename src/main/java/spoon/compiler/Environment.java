@@ -18,7 +18,6 @@ package spoon.compiler;
 
 import org.apache.log4j.Level;
 import spoon.diff.Action;
-import spoon.diff.AddAction;
 import spoon.processing.FileGenerator;
 import spoon.processing.ProblemFixer;
 import spoon.processing.ProcessingManager;
@@ -29,6 +28,7 @@ import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.factory.Factory;
 
 import java.io.File;
+import java.util.Deque;
 
 /**
  * This interface represents the environment in which Spoon is launched -
@@ -353,4 +353,6 @@ public interface Environment {
 	 * Push an action on the stack changes.
 	 */
 	void pushToStack(Action action);
+
+	Deque<Action> getActionChanges();
 }

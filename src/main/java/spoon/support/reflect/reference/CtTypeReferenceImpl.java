@@ -17,6 +17,12 @@
 package spoon.support.reflect.reference;
 
 import spoon.Launcher;
+import spoon.diff.AddAction;
+import spoon.diff.DeleteAction;
+import spoon.diff.DeleteAllAction;
+import spoon.diff.UpdateAction;
+import spoon.diff.context.ListContext;
+import spoon.diff.context.ObjectContext;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtPackage;
 import spoon.reflect.declaration.CtShadowable;
@@ -280,6 +286,9 @@ public class CtTypeReferenceImpl<T> extends CtReferenceImpl implements CtTypeRef
 		if (this.actualTypeArguments == CtElementImpl.<CtTypeReference<?>>emptyList()) {
 			this.actualTypeArguments = new ArrayList<>(TYPE_TYPE_PARAMETERS_CONTAINER_DEFAULT_CAPACITY);
 		}
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			getFactory().getEnvironment().pushToStack(new DeleteAllAction(new ListContext(this.actualTypeArguments), new ArrayList<>(this.actualTypeArguments)));
+		}
 		this.actualTypeArguments.clear();
 		for (CtTypeReference<?> actualTypeArgument : actualTypeArguments) {
 			addActualTypeArgument(actualTypeArgument);
@@ -292,6 +301,9 @@ public class CtTypeReferenceImpl<T> extends CtReferenceImpl implements CtTypeRef
 		if (declaringType != null) {
 			declaringType.setParent(this);
 		}
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			getFactory().getEnvironment().pushToStack(new UpdateAction(new ObjectContext(this, "declaringType"), declaringType, this.declaringType));
+		}
 		this.declaringType = declaringType;
 		return (C) this;
 	}
@@ -300,6 +312,9 @@ public class CtTypeReferenceImpl<T> extends CtReferenceImpl implements CtTypeRef
 	public <C extends CtTypeReference<T>> C setPackage(CtPackageReference pack) {
 		if (pack != null) {
 			pack.setParent(this);
+		}
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			getFactory().getEnvironment().pushToStack(new UpdateAction(new ObjectContext(this, "pack"), pack, this.pack));
 		}
 		this.pack = pack;
 		return (C) this;
@@ -496,13 +511,22 @@ public class CtTypeReferenceImpl<T> extends CtReferenceImpl implements CtTypeRef
 			actualTypeArguments = new ArrayList<>(TYPE_TYPE_PARAMETERS_CONTAINER_DEFAULT_CAPACITY);
 		}
 		actualTypeArgument.setParent(this);
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			getFactory().getEnvironment().pushToStack(new AddAction(new ListContext(this.actualTypeArguments), actualTypeArgument));
+		}
 		actualTypeArguments.add(actualTypeArgument);
 		return (C) this;
 	}
 
 	@Override
 	public boolean removeActualTypeArgument(CtTypeReference<?> actualTypeArgument) {
-		return actualTypeArguments != CtElementImpl.<CtTypeReference<?>>emptyList() && actualTypeArguments.remove(actualTypeArgument);
+		if (actualTypeArguments == CtElementImpl.<CtTypeReference<?>>emptyList()) {
+			return false;
+		}
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			getFactory().getEnvironment().pushToStack(new DeleteAction(new ListContext(actualTypeArguments, actualTypeArguments.indexOf(actualTypeArgument)), actualTypeArgument));
+		}
+		return actualTypeArguments.remove(actualTypeArgument);
 	}
 
 	@Override
@@ -524,6 +548,9 @@ public class CtTypeReferenceImpl<T> extends CtReferenceImpl implements CtTypeRef
 
 	@Override
 	public <E extends CtShadowable> E setShadow(boolean isShadow) {
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			getFactory().getEnvironment().pushToStack(new UpdateAction(new ObjectContext(this, "isShadow"), isShadow, this.isShadow));
+		}
 		this.isShadow = isShadow;
 		return (E) this;
 	}

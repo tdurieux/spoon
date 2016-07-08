@@ -42,7 +42,7 @@ public interface CtStatementList extends CtCodeElement, Iterable<CtStatement> {
 	/**
 	 * Removes a statement.
 	 */
-	void removeStatement(CtStatement statement);
+	boolean removeStatement(CtStatement statement);
 
 	@Override
 	CtStatementList clone();

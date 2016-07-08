@@ -591,9 +591,9 @@ public class DefaultCoreFactory extends SubFactory implements CoreFactory, Seria
 
 	public CtComment createComment() {
 		CtComment e = new CtCommentImpl();
+		e.setFactory(getMainFactory());
 		e.setCommentType(CtComment.CommentType.BLOCK);
 		e.setContent("");
-		e.setFactory(getMainFactory());
 		return e;
 	}
 

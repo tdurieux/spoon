@@ -17,6 +17,12 @@
 package spoon.support.reflect.declaration;
 
 import org.apache.log4j.Logger;
+import spoon.diff.AddAction;
+import spoon.diff.DeleteAction;
+import spoon.diff.DeleteAllAction;
+import spoon.diff.UpdateAction;
+import spoon.diff.context.ListContext;
+import spoon.diff.context.ObjectContext;
 import spoon.reflect.code.CtComment;
 import spoon.reflect.cu.SourcePosition;
 import spoon.reflect.declaration.CtAnnotation;
@@ -191,6 +197,9 @@ public abstract class CtElementImpl implements CtElement, Serializable, Comparab
 			this.annotations = CtElementImpl.emptyList();
 			return (E) this;
 		}
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			getFactory().getEnvironment().pushToStack(new DeleteAllAction(new ListContext(this.annotations), new ArrayList<>(this.annotations)));
+		}
 		this.annotations.clear();
 		for (CtAnnotation<? extends Annotation> annot : annotations) {
 			addAnnotation(annot);
@@ -207,16 +216,25 @@ public abstract class CtElementImpl implements CtElement, Serializable, Comparab
 		if (annotation == null) {
 			return (E) this;
 		}
-		if ((List<?>) this.annotations == (List<?>) emptyList()) {
+		if (this.annotations == CtElementImpl.<CtAnnotation<? extends Annotation>>emptyList()) {
 			this.annotations = new ArrayList<>(ANNOTATIONS_CONTAINER_DEFAULT_CAPACITY);
 		}
 		annotation.setParent(this);
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			getFactory().getEnvironment().pushToStack(new AddAction(new ListContext(this.annotations), annotation));
+		}
 		this.annotations.add(annotation);
 		return (E) this;
 	}
 
 	public boolean removeAnnotation(CtAnnotation<? extends Annotation> annotation) {
-		return (List<?>) annotations != (List<?>) emptyList() && this.annotations.remove(annotation);
+		if (this.annotations == CtElementImpl.<CtAnnotation<? extends Annotation>>emptyList()) {
+			return false;
+		}
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			getFactory().getEnvironment().pushToStack(new DeleteAction(new ListContext(annotations, annotations.indexOf(annotation)), annotation));
+		}
+		return this.annotations.remove(annotation);
 	}
 
 	public <E extends CtElement> E setDocComment(String docComment) {
@@ -231,6 +249,9 @@ public abstract class CtElementImpl implements CtElement, Serializable, Comparab
 	}
 
 	public <E extends CtElement> E setPosition(SourcePosition position) {
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			getFactory().getEnvironment().pushToStack(new UpdateAction(new ObjectContext(this, "position"), position, this.position));
+		}
 		this.position = position;
 		return (E) this;
 	}
@@ -271,6 +292,9 @@ public abstract class CtElementImpl implements CtElement, Serializable, Comparab
 	}
 
 	public <E extends CtElement> E setImplicit(boolean implicit) {
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			getFactory().getEnvironment().pushToStack(new UpdateAction(new ObjectContext(this, "implicit"), implicit, this.implicit));
+		}
 		this.implicit = implicit;
 		return (E) this;
 	}
@@ -310,6 +334,13 @@ public abstract class CtElementImpl implements CtElement, Serializable, Comparab
 
 	@Override
 	public <E extends CtElement> E setParent(E parent) {
+		if (getFactory() == null) {
+			this.parent = parent;
+			return (E) this;
+		}
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			getFactory().getEnvironment().pushToStack(new UpdateAction(new ObjectContext(this, "parent"), parent, this.parent));
+		}
 		this.parent = parent;
 		return (E) this;
 	}
@@ -411,20 +442,27 @@ public abstract class CtElementImpl implements CtElement, Serializable, Comparab
 		if (comment == null) {
 			return (E) this;
 		}
-		if ((List<?>) comments == emptyList()) {
+		if (this.comments == CtElementImpl.<CtComment>emptyList()) {
 			comments = new ArrayList<>(COMMENT_CONTAINER_DEFAULT_CAPACITY);
 		}
-		comments.add(comment);
 		comment.setParent(this);
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			getFactory().getEnvironment().pushToStack(new AddAction(new ListContext(this.comments), comment));
+		}
+		comments.add(comment);
 		return (E) this;
 	}
 
 	// TODO return boolean
 	@Override
 	public <E extends CtElement> E removeComment(CtComment comment) {
-		if ((List<?>) comments != emptyList()) {
-			comments.remove(comment);
+		if (this.comments == CtElementImpl.<CtComment>emptyList()) {
+			return (E) this;
 		}
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			getFactory().getEnvironment().pushToStack(new DeleteAction(new ListContext(comments, comments.indexOf(comment)), comment));
+		}
+		this.comments.remove(comment);
 		return (E) this;
 	}
 
@@ -433,6 +471,9 @@ public abstract class CtElementImpl implements CtElement, Serializable, Comparab
 		if (comments == null || comments.isEmpty()) {
 			this.comments = CtElementImpl.emptyList();
 			return (E) this;
+		}
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			getFactory().getEnvironment().pushToStack(new DeleteAllAction(new ListContext(this.comments), new ArrayList<>(this.comments)));
 		}
 		this.comments.clear();
 		for (CtComment comment : comments) {

@@ -159,7 +159,7 @@ public class CtClassImpl<T extends Object> extends CtTypeImpl<T> implements CtCl
 			this.constructors = new TreeSet<>();
 		}
 		if (getFactory().getEnvironment().buildStackChanges()) {
-			getFactory().getEnvironment().pushToStack(new DeleteAllAction(new SetContext(constructors), new HashSet<>(constructors)));
+			getFactory().getEnvironment().pushToStack(new DeleteAllAction(new SetContext(this.constructors), new HashSet<>(this.constructors)));
 		}
 		this.constructors.clear();
 		for (CtConstructor<T> constructor : constructors) {
@@ -185,16 +185,14 @@ public class CtClassImpl<T extends Object> extends CtTypeImpl<T> implements CtCl
 	}
 
 	@Override
-	public void removeConstructor(CtConstructor<T> constructor) {
-		if (!constructors.isEmpty()) {
-			if (constructors.size() == 1) {
-				if (constructors.contains(constructor)) {
-					constructors = CtElementImpl.<CtConstructor<T>>emptySet();
-				}
-			} else {
-				constructors.remove(constructor);
-			}
+	public boolean removeConstructor(CtConstructor<T> constructor) {
+		if (constructors == CtElementImpl.<CtConstructor<T>>emptySet()) {
+			return false;
 		}
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			getFactory().getEnvironment().pushToStack(new DeleteAction(new SetContext(constructors), constructor));
+		}
+		return constructors.remove(constructor);
 	}
 
 	@Override

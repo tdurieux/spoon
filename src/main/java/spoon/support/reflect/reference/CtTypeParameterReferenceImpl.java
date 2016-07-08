@@ -16,6 +16,11 @@
  */
 package spoon.support.reflect.reference;
 
+import spoon.diff.AddAction;
+import spoon.diff.DeleteAction;
+import spoon.diff.UpdateAction;
+import spoon.diff.context.ListContext;
+import spoon.diff.context.ObjectContext;
 import spoon.reflect.reference.CtActualTypeContainer;
 import spoon.reflect.reference.CtIntersectionTypeReference;
 import spoon.reflect.reference.CtReference;
@@ -73,6 +78,9 @@ public class CtTypeParameterReferenceImpl extends CtTypeReferenceImpl<Object> im
 
 	@Override
 	public <T extends CtTypeParameterReference> T setUpper(boolean upper) {
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			getFactory().getEnvironment().pushToStack(new UpdateAction(new ObjectContext(this, "upper"), upper, this.upper));
+		}
 		this.upper = upper;
 		return (T) this;
 	}
@@ -113,14 +121,22 @@ public class CtTypeParameterReferenceImpl extends CtTypeReferenceImpl<Object> im
 			actualTypeArguments = new ArrayList<>(TYPE_TYPE_PARAMETERS_CONTAINER_DEFAULT_CAPACITY);
 		}
 		actualTypeArgument.setParent(this);
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			getFactory().getEnvironment().pushToStack(new AddAction(new ListContext(this.actualTypeArguments), actualTypeArgument));
+		}
 		actualTypeArguments.add(actualTypeArgument);
 		return (C) this;
 	}
 
 	@Override
 	public boolean removeActualTypeArgument(CtTypeReference<?> actualTypeArgument) {
-		return actualTypeArguments != CtElementImpl.<CtTypeReference<?>>emptyList()
-				&& actualTypeArguments.remove(actualTypeArgument);
+		if (actualTypeArguments == CtElementImpl.<CtTypeReference<?>>emptyList()) {
+			return false;
+		}
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			getFactory().getEnvironment().pushToStack(new DeleteAction(new ListContext(actualTypeArguments, actualTypeArguments.indexOf(actualTypeArgument)), actualTypeArgument));
+		}
+		return actualTypeArguments.remove(actualTypeArgument);
 	}
 
 	@Override
@@ -164,6 +180,9 @@ public class CtTypeParameterReferenceImpl extends CtTypeReferenceImpl<Object> im
 		if (superType != null) {
 			superType.setParent(this);
 		}
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			getFactory().getEnvironment().pushToStack(new UpdateAction(new ObjectContext(this, "superType"), superType, this.superType));
+		}
 		this.superType = superType;
 		return (T) this;
 	}
@@ -176,6 +195,9 @@ public class CtTypeParameterReferenceImpl extends CtTypeReferenceImpl<Object> im
 
 	@Override
 	public <T extends CtReference> T setSimpleName(String simplename) {
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			getFactory().getEnvironment().pushToStack(new UpdateAction(new ObjectContext(this, "simplename"), simplename, this.simplename));
+		}
 		this.simplename = simplename;
 		return (T) this;
 	}

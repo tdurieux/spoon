@@ -17,6 +17,13 @@
 package spoon.support.reflect.code;
 
 import spoon.SpoonException;
+import spoon.diff.AddAction;
+import spoon.diff.DeleteAction;
+import spoon.diff.DeleteAllAction;
+import spoon.diff.UpdateAction;
+import spoon.diff.context.ListContext;
+import spoon.diff.context.ObjectContext;
+import spoon.diff.context.SetContext;
 import spoon.reflect.code.CtBlock;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtLambda;
@@ -30,6 +37,7 @@ import spoon.support.reflect.declaration.CtElementImpl;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -55,6 +63,9 @@ public class CtLambdaImpl<T> extends CtExpressionImpl<T> implements CtLambda<T> 
 
 	@Override
 	public <C extends CtNamedElement> C setSimpleName(String simpleName) {
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			getFactory().getEnvironment().pushToStack(new UpdateAction(new ObjectContext(this, "simpleName"), simpleName, this.simpleName));
+		}
 		this.simpleName = simpleName;
 		return (C) this;
 	}
@@ -72,6 +83,9 @@ public class CtLambdaImpl<T> extends CtExpressionImpl<T> implements CtLambda<T> 
 		}
 		if (body != null) {
 			body.setParent(this);
+		}
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			getFactory().getEnvironment().pushToStack(new UpdateAction(new ObjectContext(this, "body"), body, this.body));
 		}
 		this.body = body;
 		return (C) this;
@@ -91,6 +105,9 @@ public class CtLambdaImpl<T> extends CtExpressionImpl<T> implements CtLambda<T> 
 		if (this.parameters == CtElementImpl.<CtParameter<?>>emptyList()) {
 			this.parameters = new ArrayList<>(PARAMETERS_CONTAINER_DEFAULT_CAPACITY);
 		}
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			getFactory().getEnvironment().pushToStack(new DeleteAllAction(new ListContext(this.parameters), new ArrayList<>(this.parameters)));
+		}
 		this.parameters.clear();
 		for (CtParameter<?> p : params) {
 			addParameter(p);
@@ -107,14 +124,22 @@ public class CtLambdaImpl<T> extends CtExpressionImpl<T> implements CtLambda<T> 
 			parameters = new ArrayList<>(PARAMETERS_CONTAINER_DEFAULT_CAPACITY);
 		}
 		parameter.setParent(this);
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			getFactory().getEnvironment().pushToStack(new AddAction(new ListContext(this.parameters), parameter));
+		}
 		parameters.add(parameter);
 		return (C) this;
 	}
 
 	@Override
 	public boolean removeParameter(CtParameter<?> parameter) {
-		return parameters != CtElementImpl.<CtParameter<?>>emptyList()
-				&& parameters.remove(parameter);
+		if (parameters == CtElementImpl.<CtParameter<?>>emptyList()) {
+			return false;
+		}
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			getFactory().getEnvironment().pushToStack(new DeleteAction(new ListContext(parameters, parameters.indexOf(parameter)), parameter));
+		}
+		return parameters.remove(parameter);
 	}
 
 	@Override
@@ -134,6 +159,9 @@ public class CtLambdaImpl<T> extends CtExpressionImpl<T> implements CtLambda<T> 
 		if (this.thrownTypes == CtElementImpl.<CtTypeReference<? extends Throwable>>emptySet()) {
 			this.thrownTypes = new TreeSet<>();
 		}
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			getFactory().getEnvironment().pushToStack(new DeleteAllAction(new SetContext(this.thrownTypes), new HashSet<>(this.thrownTypes)));
+		}
 		this.thrownTypes.clear();
 		for (CtTypeReference<? extends Throwable> thrownType : thrownTypes) {
 			addThrownType(thrownType);
@@ -150,12 +178,21 @@ public class CtLambdaImpl<T> extends CtExpressionImpl<T> implements CtLambda<T> 
 			thrownTypes = new TreeSet<>();
 		}
 		throwType.setParent(this);
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			getFactory().getEnvironment().pushToStack(new AddAction(new SetContext(this.thrownTypes), throwType));
+		}
 		thrownTypes.add(throwType);
 		return (C) this;
 	}
 
 	@Override
 	public boolean removeThrownType(CtTypeReference<? extends Throwable> throwType) {
+		if (thrownTypes == CtElementImpl.<CtTypeReference<? extends Throwable>>emptySet()) {
+			return false;
+		}
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			getFactory().getEnvironment().pushToStack(new DeleteAction(new SetContext(thrownTypes), throwType));
+		}
 		return thrownTypes.remove(throwType);
 	}
 
@@ -176,6 +213,9 @@ public class CtLambdaImpl<T> extends CtExpressionImpl<T> implements CtLambda<T> 
 		}
 		if (expression != null) {
 			expression.setParent(this);
+		}
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			getFactory().getEnvironment().pushToStack(new UpdateAction(new ObjectContext(this, "expression"), expression, this.expression));
 		}
 		this.expression = expression;
 		return (C) this;

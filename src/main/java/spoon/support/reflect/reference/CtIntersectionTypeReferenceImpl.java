@@ -16,12 +16,17 @@
  */
 package spoon.support.reflect.reference;
 
+import spoon.diff.AddAction;
+import spoon.diff.DeleteAction;
+import spoon.diff.DeleteAllAction;
+import spoon.diff.context.SetContext;
 import spoon.reflect.reference.CtIntersectionTypeReference;
 import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.CtVisitor;
 import spoon.support.reflect.declaration.CtElementImpl;
 
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -49,6 +54,9 @@ public class CtIntersectionTypeReferenceImpl<T> extends CtTypeReferenceImpl<T> i
 		if (this.bounds == CtElementImpl.<CtTypeReference<?>>emptySet()) {
 			this.bounds = new TreeSet<>(new SourcePositionComparator());
 		}
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			getFactory().getEnvironment().pushToStack(new DeleteAllAction(new SetContext(this.bounds), new HashSet<>(this.bounds)));
+		}
 		this.bounds.clear();
 		for (CtTypeReference<?> bound : bounds) {
 			addBound(bound);
@@ -65,13 +73,22 @@ public class CtIntersectionTypeReferenceImpl<T> extends CtTypeReferenceImpl<T> i
 			bounds = new TreeSet<>(new SourcePositionComparator());
 		}
 		bound.setParent(this);
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			getFactory().getEnvironment().pushToStack(new AddAction(new SetContext(this.bounds), bound));
+		}
 		bounds.add(bound);
 		return (C) this;
 	}
 
 	@Override
 	public boolean removeBound(CtTypeReference<?> bound) {
-		return bounds != CtElementImpl.<CtTypeReference<?>>emptyList() && bounds.remove(bound);
+		if (bounds == CtElementImpl.<CtTypeReference<?>>emptyList()) {
+			return false;
+		}
+		if (getFactory().getEnvironment().buildStackChanges()) {
+			getFactory().getEnvironment().pushToStack(new DeleteAction(new SetContext(bounds), bound));
+		}
+		return bounds.remove(bound);
 	}
 
 	private class SourcePositionComparator implements Comparator<CtTypeReference<?>> {
