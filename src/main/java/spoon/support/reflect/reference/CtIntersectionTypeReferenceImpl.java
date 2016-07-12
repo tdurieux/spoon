@@ -55,7 +55,8 @@ public class CtIntersectionTypeReferenceImpl<T> extends CtTypeReferenceImpl<T> i
 			this.bounds = new TreeSet<>(new SourcePositionComparator());
 		}
 		if (getFactory().getEnvironment().buildStackChanges()) {
-			getFactory().getEnvironment().pushToStack(new DeleteAllAction(new SetContext(this.bounds), new HashSet<>(this.bounds)));
+			getFactory().getEnvironment().pushToStack(new DeleteAllAction(new SetContext(
+					this, this.bounds), new HashSet<>(this.bounds)));
 		}
 		this.bounds.clear();
 		for (CtTypeReference<?> bound : bounds) {
@@ -74,7 +75,8 @@ public class CtIntersectionTypeReferenceImpl<T> extends CtTypeReferenceImpl<T> i
 		}
 		bound.setParent(this);
 		if (getFactory().getEnvironment().buildStackChanges()) {
-			getFactory().getEnvironment().pushToStack(new AddAction(new SetContext(this.bounds), bound));
+			getFactory().getEnvironment().pushToStack(new AddAction(new SetContext(
+					this, this.bounds), bound));
 		}
 		bounds.add(bound);
 		return (C) this;
@@ -86,7 +88,8 @@ public class CtIntersectionTypeReferenceImpl<T> extends CtTypeReferenceImpl<T> i
 			return false;
 		}
 		if (getFactory().getEnvironment().buildStackChanges()) {
-			getFactory().getEnvironment().pushToStack(new DeleteAction(new SetContext(bounds), bound));
+			getFactory().getEnvironment().pushToStack(new DeleteAction(new SetContext(
+					this, bounds), bound));
 		}
 		return bounds.remove(bound);
 	}

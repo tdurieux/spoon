@@ -108,7 +108,8 @@ public class CtClassImpl<T extends Object> extends CtTypeImpl<T> implements CtCl
 		}
 		e.setParent(this);
 		if (getFactory().getEnvironment().buildStackChanges()) {
-			getFactory().getEnvironment().pushToStack(new AddAction(new ListContext(anonymousExecutables, anonymousExecutables.size()), e));
+			getFactory().getEnvironment().pushToStack(new AddAction(new ListContext(
+					this, anonymousExecutables, anonymousExecutables.size()), e));
 		}
 		anonymousExecutables.add(e);
 		return (C) this;
@@ -120,7 +121,8 @@ public class CtClassImpl<T extends Object> extends CtTypeImpl<T> implements CtCl
 			return false;
 		}
 		if (getFactory().getEnvironment().buildStackChanges()) {
-			getFactory().getEnvironment().pushToStack(new DeleteAction(new ListContext(anonymousExecutables, anonymousExecutables.indexOf(e)), e));
+			getFactory().getEnvironment().pushToStack(new DeleteAction(new ListContext(
+					this, anonymousExecutables, anonymousExecutables.indexOf(e)), e));
 		}
 		return anonymousExecutables.remove(e);
 	}
@@ -140,7 +142,8 @@ public class CtClassImpl<T extends Object> extends CtTypeImpl<T> implements CtCl
 			this.anonymousExecutables = new ArrayList<>(ANONYMOUS_EXECUTABLES_CONTAINER_DEFAULT_CAPACITY);
 		}
 		if (getFactory().getEnvironment().buildStackChanges()) {
-			getFactory().getEnvironment().pushToStack(new DeleteAllAction(new ListContext(anonymousExecutables), new ArrayList<>(anonymousExecutables)));
+			getFactory().getEnvironment().pushToStack(new DeleteAllAction(new ListContext(
+					this, anonymousExecutables), new ArrayList<>(anonymousExecutables)));
 		}
 		this.anonymousExecutables.clear();
 		for (CtAnonymousExecutable exec : anonymousExecutables) {
@@ -159,7 +162,8 @@ public class CtClassImpl<T extends Object> extends CtTypeImpl<T> implements CtCl
 			this.constructors = new TreeSet<>();
 		}
 		if (getFactory().getEnvironment().buildStackChanges()) {
-			getFactory().getEnvironment().pushToStack(new DeleteAllAction(new SetContext(this.constructors), new HashSet<>(this.constructors)));
+			getFactory().getEnvironment().pushToStack(new DeleteAllAction(new SetContext(
+					this, this.constructors), new HashSet<>(this.constructors)));
 		}
 		this.constructors.clear();
 		for (CtConstructor<T> constructor : constructors) {
@@ -178,7 +182,8 @@ public class CtClassImpl<T extends Object> extends CtTypeImpl<T> implements CtCl
 		}
 		constructor.setParent(this);
 		if (getFactory().getEnvironment().buildStackChanges()) {
-			getFactory().getEnvironment().pushToStack(new AddAction(new SetContext(constructors), constructor));
+			getFactory().getEnvironment().pushToStack(new AddAction(new SetContext(
+					this, constructors), constructor));
 		}
 		constructors.add(constructor);
 		return (C) this;
@@ -190,7 +195,8 @@ public class CtClassImpl<T extends Object> extends CtTypeImpl<T> implements CtCl
 			return false;
 		}
 		if (getFactory().getEnvironment().buildStackChanges()) {
-			getFactory().getEnvironment().pushToStack(new DeleteAction(new SetContext(constructors), constructor));
+			getFactory().getEnvironment().pushToStack(new DeleteAction(new SetContext(
+					this, constructors), constructor));
 		}
 		return constructors.remove(constructor);
 	}

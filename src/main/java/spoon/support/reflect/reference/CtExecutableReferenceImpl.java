@@ -202,7 +202,8 @@ public class CtExecutableReferenceImpl<T> extends CtReferenceImpl implements CtE
 			this.parameters = new ArrayList<>();
 		}
 		if (getFactory().getEnvironment().buildStackChanges()) {
-			getFactory().getEnvironment().pushToStack(new DeleteAllAction(new ListContext(this.parameters), new ArrayList<>(this.parameters)));
+			getFactory().getEnvironment().pushToStack(new DeleteAllAction(new ListContext(
+					this, this.parameters), new ArrayList<>(this.parameters)));
 		}
 		this.parameters.clear();
 		for (CtTypeReference<?> parameter : parameters) {
@@ -217,7 +218,8 @@ public class CtExecutableReferenceImpl<T> extends CtReferenceImpl implements CtE
 		}
 		parameter.setParent(this);
 		if (getFactory().getEnvironment().buildStackChanges()) {
-			getFactory().getEnvironment().pushToStack(new AddAction(new ListContext(this.parameters), parameter));
+			getFactory().getEnvironment().pushToStack(new AddAction(new ListContext(
+					this, this.parameters), parameter));
 		}
 		return this.parameters.add(parameter);
 	}
@@ -270,7 +272,8 @@ public class CtExecutableReferenceImpl<T> extends CtReferenceImpl implements CtE
 			this.actualTypeArguments = new ArrayList<>();
 		}
 		if (getFactory().getEnvironment().buildStackChanges()) {
-			getFactory().getEnvironment().pushToStack(new DeleteAllAction(new ListContext(this.actualTypeArguments), new ArrayList<>(this.actualTypeArguments)));
+			getFactory().getEnvironment().pushToStack(new DeleteAllAction(new ListContext(
+					this, this.actualTypeArguments), new ArrayList<>(this.actualTypeArguments)));
 		}
 		this.actualTypeArguments.clear();
 		for (CtTypeReference<?> actualTypeArgument : actualTypeArguments) {
@@ -449,7 +452,8 @@ public class CtExecutableReferenceImpl<T> extends CtReferenceImpl implements CtE
 		}
 		actualTypeArgument.setParent(this);
 		if (getFactory().getEnvironment().buildStackChanges()) {
-			getFactory().getEnvironment().pushToStack(new AddAction(new ListContext(this.actualTypeArguments), actualTypeArgument));
+			getFactory().getEnvironment().pushToStack(new AddAction(new ListContext(
+					this, this.actualTypeArguments), actualTypeArgument));
 		}
 		actualTypeArguments.add(actualTypeArgument);
 		return (C) this;
@@ -461,7 +465,8 @@ public class CtExecutableReferenceImpl<T> extends CtReferenceImpl implements CtE
 			return false;
 		}
 		if (getFactory().getEnvironment().buildStackChanges()) {
-			getFactory().getEnvironment().pushToStack(new DeleteAction(new ListContext(actualTypeArguments, actualTypeArguments.indexOf(actualTypeArgument)), actualTypeArgument));
+			getFactory().getEnvironment().pushToStack(new DeleteAction(new ListContext(
+					this, actualTypeArguments, actualTypeArguments.indexOf(actualTypeArgument)), actualTypeArgument));
 		}
 		return actualTypeArguments.remove(actualTypeArgument);
 	}

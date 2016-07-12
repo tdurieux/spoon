@@ -117,7 +117,8 @@ public class CtCatchVariableImpl<T> extends CtCodeElementImpl implements CtCatch
 		}
 		type.setParent(this);
 		if (getFactory().getEnvironment().buildStackChanges()) {
-			getFactory().getEnvironment().pushToStack(new AddAction(new ListContext(this.types), type));
+			getFactory().getEnvironment().pushToStack(new AddAction(new ListContext(
+					this, this.types), type));
 		}
 		types.add(type);
 		return (T) this;
@@ -129,7 +130,8 @@ public class CtCatchVariableImpl<T> extends CtCodeElementImpl implements CtCatch
 			return false;
 		}
 		if (getFactory().getEnvironment().buildStackChanges()) {
-			getFactory().getEnvironment().pushToStack(new DeleteAction(new ListContext(types, types.indexOf(ref)), ref));
+			getFactory().getEnvironment().pushToStack(new DeleteAction(new ListContext(
+					this, types, types.indexOf(ref)), ref));
 		}
 		return types.remove(ref);
 	}
@@ -158,7 +160,8 @@ public class CtCatchVariableImpl<T> extends CtCodeElementImpl implements CtCatch
 	@Override
 	public <C extends CtModifiable> C setModifiers(Set<ModifierKind> modifiers) {
 		if (getFactory().getEnvironment().buildStackChanges()) {
-			getFactory().getEnvironment().pushToStack(new DeleteAllAction(new SetContext(this.modifiers), new HashSet<>(this.modifiers)));
+			getFactory().getEnvironment().pushToStack(new DeleteAllAction(new SetContext(
+					this, this.modifiers), new HashSet<>(this.modifiers)));
 		}
 		this.modifiers.clear();
 		for (ModifierKind modifier : this.modifiers) {
@@ -173,7 +176,8 @@ public class CtCatchVariableImpl<T> extends CtCodeElementImpl implements CtCatch
 			this.modifiers = EnumSet.noneOf(ModifierKind.class);
 		}
 		if (getFactory().getEnvironment().buildStackChanges()) {
-			getFactory().getEnvironment().pushToStack(new AddAction(new SetContext(this.modifiers), modifier));
+			getFactory().getEnvironment().pushToStack(new AddAction(new SetContext(
+					this, this.modifiers), modifier));
 		}
 		modifiers.add(modifier);
 		return (C) this;
@@ -185,7 +189,8 @@ public class CtCatchVariableImpl<T> extends CtCodeElementImpl implements CtCatch
 			return false;
 		}
 		if (getFactory().getEnvironment().buildStackChanges()) {
-			getFactory().getEnvironment().pushToStack(new DeleteAction(new SetContext(modifiers), modifier));
+			getFactory().getEnvironment().pushToStack(new DeleteAction(new SetContext(
+					this, modifiers), modifier));
 		}
 		return modifiers.remove(modifier);
 	}

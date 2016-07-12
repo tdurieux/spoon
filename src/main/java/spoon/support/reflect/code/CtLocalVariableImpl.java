@@ -125,7 +125,8 @@ public class CtLocalVariableImpl<T> extends CtStatementImpl implements CtLocalVa
 	@Override
 	public <C extends CtModifiable> C setModifiers(Set<ModifierKind> modifiers) {
 		if (getFactory().getEnvironment().buildStackChanges()) {
-			getFactory().getEnvironment().pushToStack(new DeleteAllAction(new SetContext(this.modifiers), new HashSet<>(this.modifiers)));
+			getFactory().getEnvironment().pushToStack(new DeleteAllAction(new SetContext(
+					this, this.modifiers), new HashSet<>(this.modifiers)));
 		}
 		this.modifiers.clear();
 		for (ModifierKind modifier : modifiers) {
@@ -140,7 +141,8 @@ public class CtLocalVariableImpl<T> extends CtStatementImpl implements CtLocalVa
 			this.modifiers = EnumSet.noneOf(ModifierKind.class);
 		}
 		if (getFactory().getEnvironment().buildStackChanges()) {
-			getFactory().getEnvironment().pushToStack(new AddAction(new SetContext(this.modifiers), modifier));
+			getFactory().getEnvironment().pushToStack(new AddAction(new SetContext(
+					this, this.modifiers), modifier));
 		}
 		modifiers.add(modifier);
 		return (C) this;
@@ -152,7 +154,8 @@ public class CtLocalVariableImpl<T> extends CtStatementImpl implements CtLocalVa
 			return false;
 		}
 		if (getFactory().getEnvironment().buildStackChanges()) {
-			getFactory().getEnvironment().pushToStack(new DeleteAction(new SetContext(modifiers), modifier));
+			getFactory().getEnvironment().pushToStack(new DeleteAction(new SetContext(
+					this, modifiers), modifier));
 		}
 		return modifiers.remove(modifier);
 	}

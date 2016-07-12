@@ -122,7 +122,8 @@ public class CtTypeParameterReferenceImpl extends CtTypeReferenceImpl<Object> im
 		}
 		actualTypeArgument.setParent(this);
 		if (getFactory().getEnvironment().buildStackChanges()) {
-			getFactory().getEnvironment().pushToStack(new AddAction(new ListContext(this.actualTypeArguments), actualTypeArgument));
+			getFactory().getEnvironment().pushToStack(new AddAction(new ListContext(
+					this, this.actualTypeArguments), actualTypeArgument));
 		}
 		actualTypeArguments.add(actualTypeArgument);
 		return (C) this;
@@ -134,7 +135,8 @@ public class CtTypeParameterReferenceImpl extends CtTypeReferenceImpl<Object> im
 			return false;
 		}
 		if (getFactory().getEnvironment().buildStackChanges()) {
-			getFactory().getEnvironment().pushToStack(new DeleteAction(new ListContext(actualTypeArguments, actualTypeArguments.indexOf(actualTypeArgument)), actualTypeArgument));
+			getFactory().getEnvironment().pushToStack(new DeleteAction(new ListContext(
+					this, actualTypeArguments, actualTypeArguments.indexOf(actualTypeArgument)), actualTypeArgument));
 		}
 		return actualTypeArguments.remove(actualTypeArgument);
 	}

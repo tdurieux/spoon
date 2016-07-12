@@ -162,7 +162,7 @@ public class CtAnnotationImpl<A extends Annotation> extends CtExpressionImpl<A> 
 			// Add the new value.
 			expression.setParent(this);
 			if (getFactory().getEnvironment().buildStackChanges()) {
-				getFactory().getEnvironment().pushToStack(new AddAction(new MapContext(this.elementValues), expression));
+				getFactory().getEnvironment().pushToStack(new AddAction(new MapContext(this, this.elementValues), expression));
 			}
 			elementValues.put(elementName, expression);
 		}
@@ -369,7 +369,8 @@ public class CtAnnotationImpl<A extends Annotation> extends CtExpressionImpl<A> 
 	@Override
 	public <T extends CtAnnotation<A>> T setElementValues(Map<String, Object> values) {
 		if (getFactory().getEnvironment().buildStackChanges()) {
-			getFactory().getEnvironment().pushToStack(new DeleteAllAction(new MapContext(this.elementValues), new HashMap<>(elementValues)));
+			getFactory().getEnvironment().pushToStack(new DeleteAllAction(new MapContext(
+					this, this.elementValues), new HashMap<>(elementValues)));
 		}
 		this.elementValues.clear();
 		for (Entry<String, Object> e : values.entrySet()) {
@@ -381,7 +382,8 @@ public class CtAnnotationImpl<A extends Annotation> extends CtExpressionImpl<A> 
 	@Override
 	public <T extends CtAnnotation<A>> T setValues(Map<String, CtExpression> values) {
 		if (getFactory().getEnvironment().buildStackChanges()) {
-			getFactory().getEnvironment().pushToStack(new DeleteAllAction(new MapContext(this.elementValues), new HashMap<>(elementValues)));
+			getFactory().getEnvironment().pushToStack(new DeleteAllAction(new MapContext(
+					this, this.elementValues), new HashMap<>(elementValues)));
 		}
 		this.elementValues.clear();
 		for (Entry<String, CtExpression> e : values.entrySet()) {

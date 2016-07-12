@@ -124,7 +124,8 @@ public class CtFieldImpl<T> extends CtNamedElementImpl implements CtField<T> {
 	@Override
 	public <C extends CtModifiable> C setModifiers(Set<ModifierKind> modifiers) {
 		if (getFactory().getEnvironment().buildStackChanges()) {
-			getFactory().getEnvironment().pushToStack(new DeleteAllAction(new SetContext(this.modifiers), new HashSet<>(this.modifiers)));
+			getFactory().getEnvironment().pushToStack(new DeleteAllAction(new SetContext(
+					this, this.modifiers), new HashSet<>(this.modifiers)));
 		}
 		this.modifiers.clear();
 		for (ModifierKind modifier : modifiers) {
@@ -139,7 +140,8 @@ public class CtFieldImpl<T> extends CtNamedElementImpl implements CtField<T> {
 			this.modifiers = EnumSet.noneOf(ModifierKind.class);
 		}
 		if (getFactory().getEnvironment().buildStackChanges()) {
-			getFactory().getEnvironment().pushToStack(new AddAction(new SetContext(this.modifiers), modifier));
+			getFactory().getEnvironment().pushToStack(new AddAction(new SetContext(
+					this, this.modifiers), modifier));
 		}
 		modifiers.add(modifier);
 		return (C) this;
@@ -151,7 +153,8 @@ public class CtFieldImpl<T> extends CtNamedElementImpl implements CtField<T> {
 			return false;
 		}
 		if (getFactory().getEnvironment().buildStackChanges()) {
-			getFactory().getEnvironment().pushToStack(new DeleteAction(new SetContext(modifiers), modifier));
+			getFactory().getEnvironment().pushToStack(new DeleteAction(new SetContext(
+					this, modifiers), modifier));
 		}
 		return modifiers.remove(modifier);
 	}

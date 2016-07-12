@@ -106,7 +106,8 @@ public class CtLambdaImpl<T> extends CtExpressionImpl<T> implements CtLambda<T> 
 			this.parameters = new ArrayList<>(PARAMETERS_CONTAINER_DEFAULT_CAPACITY);
 		}
 		if (getFactory().getEnvironment().buildStackChanges()) {
-			getFactory().getEnvironment().pushToStack(new DeleteAllAction(new ListContext(this.parameters), new ArrayList<>(this.parameters)));
+			getFactory().getEnvironment().pushToStack(new DeleteAllAction(new ListContext(
+					this, this.parameters), new ArrayList<>(this.parameters)));
 		}
 		this.parameters.clear();
 		for (CtParameter<?> p : params) {
@@ -125,7 +126,7 @@ public class CtLambdaImpl<T> extends CtExpressionImpl<T> implements CtLambda<T> 
 		}
 		parameter.setParent(this);
 		if (getFactory().getEnvironment().buildStackChanges()) {
-			getFactory().getEnvironment().pushToStack(new AddAction(new ListContext(this.parameters), parameter));
+			getFactory().getEnvironment().pushToStack(new AddAction(new ListContext(this, this.parameters), parameter));
 		}
 		parameters.add(parameter);
 		return (C) this;
@@ -137,7 +138,7 @@ public class CtLambdaImpl<T> extends CtExpressionImpl<T> implements CtLambda<T> 
 			return false;
 		}
 		if (getFactory().getEnvironment().buildStackChanges()) {
-			getFactory().getEnvironment().pushToStack(new DeleteAction(new ListContext(parameters, parameters.indexOf(parameter)), parameter));
+			getFactory().getEnvironment().pushToStack(new DeleteAction(new ListContext(this, parameters, parameters.indexOf(parameter)), parameter));
 		}
 		return parameters.remove(parameter);
 	}
@@ -160,7 +161,8 @@ public class CtLambdaImpl<T> extends CtExpressionImpl<T> implements CtLambda<T> 
 			this.thrownTypes = new TreeSet<>();
 		}
 		if (getFactory().getEnvironment().buildStackChanges()) {
-			getFactory().getEnvironment().pushToStack(new DeleteAllAction(new SetContext(this.thrownTypes), new HashSet<>(this.thrownTypes)));
+			getFactory().getEnvironment().pushToStack(new DeleteAllAction(new SetContext(
+					this, this.thrownTypes), new HashSet<>(this.thrownTypes)));
 		}
 		this.thrownTypes.clear();
 		for (CtTypeReference<? extends Throwable> thrownType : thrownTypes) {
@@ -179,7 +181,8 @@ public class CtLambdaImpl<T> extends CtExpressionImpl<T> implements CtLambda<T> 
 		}
 		throwType.setParent(this);
 		if (getFactory().getEnvironment().buildStackChanges()) {
-			getFactory().getEnvironment().pushToStack(new AddAction(new SetContext(this.thrownTypes), throwType));
+			getFactory().getEnvironment().pushToStack(new AddAction(new SetContext(
+					this, this.thrownTypes), throwType));
 		}
 		thrownTypes.add(throwType);
 		return (C) this;
@@ -191,7 +194,8 @@ public class CtLambdaImpl<T> extends CtExpressionImpl<T> implements CtLambda<T> 
 			return false;
 		}
 		if (getFactory().getEnvironment().buildStackChanges()) {
-			getFactory().getEnvironment().pushToStack(new DeleteAction(new SetContext(thrownTypes), throwType));
+			getFactory().getEnvironment().pushToStack(new DeleteAction(new SetContext(
+					this, thrownTypes), throwType));
 		}
 		return thrownTypes.remove(throwType);
 	}
