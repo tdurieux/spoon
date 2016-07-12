@@ -68,7 +68,7 @@ public abstract class CtExecutableImpl<R> extends CtNamedElementImpl implements 
 			body.setParent(this);
 		}
 		if (getFactory().getEnvironment().buildStackChanges()) {
-			getFactory().getEnvironment().pushToStack(new UpdateAction(new ObjectContext(this, "superClass"), body, this.body));
+			getFactory().getEnvironment().pushToStack(new UpdateAction(new ObjectContext(this, "body"), body, this.body));
 		}
 		this.body = body;
 		return (T) this;
