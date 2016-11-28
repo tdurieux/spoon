@@ -1,16 +1,7 @@
 package spoon.test.targeted;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static spoon.testing.utils.ModelUtils.build;
-import static spoon.testing.utils.ModelUtils.buildClass;
-
-import java.util.List;
-
+import com.sun.org.apache.bcel.internal.classfile.InnerClass;
 import org.junit.Test;
-
 import spoon.Launcher;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtFieldAccess;
@@ -43,7 +34,14 @@ import spoon.test.targeted.testclasses.Pozole;
 import spoon.test.targeted.testclasses.SuperClass;
 import spoon.test.targeted.testclasses.Tapas;
 
-import com.sun.org.apache.bcel.internal.classfile.InnerClass;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static spoon.testing.utils.ModelUtils.build;
+import static spoon.testing.utils.ModelUtils.buildClass;
 
 
 public class TargetedExpressionTest {
@@ -103,7 +101,7 @@ public class TargetedExpressionTest {
 		CtFieldAccess<?> fieldAccess = factory.Core().createFieldRead();
 		fieldAccess.setVariable((CtFieldReference) iField.getReference());
 		fieldAccess.setTarget(factory.Code().createThisAccess(fooClass.getReference()));
-		assertEquals("spoon.test.targeted.testclasses.Foo.this.i", fieldAccess.toString());
+		assertEquals("i", fieldAccess.toString());
 		// this test is made for this line. Check that we can setTarget(null)
 		// without NPE
 		fieldAccess.setTarget(null);

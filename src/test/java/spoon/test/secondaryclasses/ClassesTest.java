@@ -1,20 +1,6 @@
 package spoon.test.secondaryclasses;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static spoon.testing.utils.ModelUtils.build;
-import static spoon.testing.utils.ModelUtils.buildClass;
-
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.TreeSet;
-
 import org.junit.Test;
-
 import spoon.reflect.code.CtBlock;
 import spoon.reflect.code.CtNewClass;
 import spoon.reflect.code.CtVariableRead;
@@ -31,6 +17,19 @@ import spoon.reflect.visitor.filter.TypeFilter;
 import spoon.support.comparator.CtLineElementComparator;
 import spoon.test.secondaryclasses.AnonymousClass.I;
 import spoon.test.secondaryclasses.testclasses.Pozole;
+
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.TreeSet;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static spoon.testing.utils.ModelUtils.build;
+import static spoon.testing.utils.ModelUtils.buildClass;
 
 public class ClassesTest {
 
@@ -154,5 +153,6 @@ public class ClassesTest {
 
 		assertNotNull(declaration);
 		assertEquals("int i", declaration.toString());
+		System.out.println(anonymousClass.getParent(CtType.class));
 	}
 }

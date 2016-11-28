@@ -104,13 +104,18 @@ import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.reference.CtUnboundVariableReference;
 import spoon.reflect.reference.CtWildcardReference;
 import spoon.reflect.visitor.PrintingContext.Writable;
+import spoon.reflect.visitor.printer.AccessibleMethodsFinder;
+import spoon.reflect.visitor.printer.AccessibleVariablesFinder;
 import spoon.reflect.visitor.printer.CommentOffset;
 import spoon.reflect.visitor.printer.ElementPrinterHelper;
 import spoon.reflect.visitor.printer.PrinterHelper;
+import spoon.support.SpoonClassNotFoundException;
 
 import java.lang.annotation.Annotation;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -720,22 +725,134 @@ public class DefaultJavaPrettyPrinter implements CtVisitor, PrettyPrinter {
 	@Override
 	public <T> void visitCtThisAccess(CtThisAccess<T> thisAccess) {
 		enterCtExpression(thisAccess);
-		if (thisAccess.getTarget() != null && thisAccess.getTarget() instanceof CtTypeAccess
-				&& !tryToInitializeFinalFieldInConstructor(thisAccess)
-				&& !thisAccess.isImplicit()
-				&& !thisAccess.getTarget().isImplicit()) {
-			final CtTypeReference accessedType = ((CtTypeAccess) thisAccess.getTarget()).getAccessedType();
-			if (accessedType.isLocalType()) {
-				printer.write(accessedType.getSimpleName().replaceAll("^[0-9]*", "") + ".");
-			} else if (!accessedType.isAnonymous()) {
-				visitCtTypeReferenceWithoutGenerics(accessedType);
-				printer.write(".");
+		boolean needQualifiedThis = printQualifiedThis(thisAccess);
+		if (printThis(thisAccess) || needQualifiedThis) {
+			thisAccess.setImplicit(false);
+			if (needQualifiedThis) {
+				thisAccess.getTarget().setImplicit(false);
+				// qualified
+				final CtTypeReference accessedType = ((CtTypeAccess) thisAccess.getTarget()).getAccessedType();
+				if (accessedType.isLocalType()) {
+					printer.write(accessedType.getSimpleName().replaceAll("^[0-9]*", "") + ".");
+				} else if (!accessedType.isAnonymous()) {
+					visitCtTypeReferenceWithoutGenerics(accessedType);
+					printer.write(".");
+				}
+			} else {
+				thisAccess.getTarget().setImplicit(true);
 			}
-		}
-		if (!thisAccess.isImplicit()) {
+			// only this
 			printer.write("this");
+		} else {
+			thisAccess.setImplicit(true);
+			// only the variable
 		}
 		exitCtExpression(thisAccess);
+	}
+
+	private boolean printQualifiedThis(CtThisAccess thisAccess) {
+		if (thisAccess.getTarget() == null) {
+			return false;
+		}
+		if (!(thisAccess.getTarget() instanceof CtTypeAccess)) {
+			return false;
+		}
+		// if the field is in the current type no need to print the qualified name
+		CtType typeParent = thisAccess.getParent(CtType.class);
+		if (typeParent == null) {
+			// the this is not in a type and thus no need the full qualified name
+			return false;
+		}
+		CtTypeReference thisType = ((CtTypeAccess) thisAccess.getTarget()).getAccessedType();
+		if (thisType == null) {
+			return false;
+		}
+		CtTypeReference currentType = typeParent.getReference();
+		try {
+			if (thisType.isSubtypeOf(currentType)) {
+				thisType = currentType;
+			}
+		} catch (SpoonClassNotFoundException ignore) {
+			// ignore
+		}
+		// compute if this is a target of an expression
+		boolean isTarget = false;
+		CtElement parent = thisAccess.getParent();
+		if (parent instanceof CtTargetedExpression) {
+			if (((CtTargetedExpression) parent).getTarget() != null &&
+					((CtTargetedExpression) parent).getTarget() == thisAccess) {
+				isTarget = true;
+			}
+		}
+		if (thisType.canAccess(currentType)) {
+			// is its a this access (current instance) not has a target
+			// and that the this refers to a parent class => print the qualified name
+			if (!isTarget && !thisType.equals(currentType)) {
+				return true;
+			}
+			return false;
+		}
+		if (tryToInitializeFinalFieldInConstructor(thisAccess)) {
+			return false;
+		}
+		return true;
+	}
+
+	private boolean printThis(CtThisAccess thisAccess) {
+		if (!thisAccess.getTypeCasts().isEmpty()) {
+			return true;
+		}
+		CtElement parent = thisAccess.getParent();
+		if (parent instanceof CtFieldAccess) {
+			CtFieldAccess fieldAccess = (CtFieldAccess) parent;
+			if (fieldAccess.getVariable().isStatic()) {
+				return false;
+			}
+			Map<String, List<CtVariable>> variables = new HashMap<>();
+			List<CtVariable> ctVariables = new AccessibleVariablesFinder(thisAccess).find();
+			for (int i = 0; i < ctVariables.size(); i++) {
+				CtVariable ctVariable = ctVariables.get(i);
+				if (!variables.containsKey(ctVariable.getSimpleName())) {
+					variables.put(ctVariable.getSimpleName(), new ArrayList<CtVariable>());
+				}
+				variables.get(ctVariable.getSimpleName()).add(ctVariable);
+			}
+			if (!variables.containsKey(fieldAccess.getVariable().getSimpleName())) {
+				// variable not FOUND
+				return true;
+			}
+			if (variables.get(fieldAccess.getVariable().getSimpleName()).size() > 1) {
+				return true;
+			}
+			return false;
+		} else if (parent instanceof CtInvocation && ((CtInvocation) parent).getTarget() != null && ((CtInvocation) parent).getTarget() == thisAccess) {
+			CtInvocation invocation = (CtInvocation) parent;
+			if (!invocation.getActualTypeArguments().isEmpty()) {
+				return true;
+			}
+			Map<String, List<CtMethod>> methods = new HashMap<>();
+			List<CtMethod> ctMethods = new AccessibleMethodsFinder(thisAccess).find();
+			for (int i = 0; i < ctMethods.size(); i++) {
+				CtMethod ctMethod = ctMethods.get(i);
+				if (!methods.containsKey(ctMethod.getSimpleName())) {
+					methods.put(ctMethod.getSimpleName(), new ArrayList<CtMethod>());
+				}
+				methods.get(ctMethod.getSimpleName()).add(ctMethod);
+			}
+			if (!methods.containsKey(invocation.getExecutable().getSimpleName())) {
+				// variable not FOUND
+				return true;
+			}
+			if (methods.get(invocation.getExecutable().getSimpleName()).size() > 1) {
+				return true;
+			}
+			return false;
+		}
+		// TODO compute if this is required for the method access
+		if (thisAccess.isImplicit()) {
+			return false;
+		}
+		return true;
 	}
 
 	/**

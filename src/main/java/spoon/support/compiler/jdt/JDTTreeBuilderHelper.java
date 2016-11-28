@@ -352,7 +352,14 @@ class JDTTreeBuilderHelper {
 			if (ref.isStatic() && !ref.getDeclaringType().isAnonymous()) {
 				va.setTarget(jdtTreeBuilder.getFactory().Code().createTypeAccess(ref.getDeclaringType()));
 			} else if (!ref.isStatic()) {
-				va.setTarget(jdtTreeBuilder.getFactory().Code().createThisAccess(jdtTreeBuilder.getReferencesBuilder().getTypeReference(singleNameReference.actualReceiverType), true));
+				CtTypeReference thisReference = jdtTreeBuilder.getReferencesBuilder().getTypeReference(singleNameReference.actualReceiverType);
+				for (final ASTPair astPair : jdtTreeBuilder.getContextBuilder().stack) {
+					if (astPair.element instanceof CtType && thisReference.isSubtypeOf(((CtType) astPair.element).getReference())) {
+						thisReference = ((CtType) astPair.element).getReference();
+						break;
+					}
+				}
+				va.setTarget(jdtTreeBuilder.getFactory().Code().createThisAccess(thisReference, true));
 			}
 		}
 		return va;

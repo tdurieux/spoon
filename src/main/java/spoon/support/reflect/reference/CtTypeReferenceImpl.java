@@ -620,6 +620,9 @@ public class CtTypeReferenceImpl<T> extends CtReferenceImpl implements CtTypeRef
 	@Override
 	public boolean canAccess(CtTypeReference<?> type) {
 		try {
+			if (equals(type)) {
+				return true;
+			}
 			Set<ModifierKind> modifiers = type.getModifiers();
 
 			if (modifiers.contains(ModifierKind.PUBLIC)) {
