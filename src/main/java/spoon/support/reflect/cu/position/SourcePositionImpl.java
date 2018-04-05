@@ -16,6 +16,7 @@
  */
 package spoon.support.reflect.cu.position;
 
+import spoon.SpoonException;
 import spoon.reflect.cu.CompilationUnit;
 import spoon.reflect.cu.SourcePosition;
 
@@ -91,10 +92,10 @@ public class SourcePositionImpl implements SourcePosition, Serializable {
 	}
 
 	/** The position of the first byte of this element (incl. documentation and modifiers) */
-	private int sourceStart = -1;
+	private final int sourceStart;
 
 	/** The position of the last byte of this element */
-	private int sourceEnd = -1;
+	private final int sourceEnd;
 
 	/** The line number of the start of the element, if appropriate (eg the method name).
 	 * Computed lazily by {@link #getLine()}
@@ -112,6 +113,7 @@ public class SourcePositionImpl implements SourcePosition, Serializable {
 
 	public SourcePositionImpl(CompilationUnit compilationUnit, int sourceStart, int sourceEnd, int[] lineSeparatorPositions) {
 		super();
+		checkArgsAreAscending(sourceStart, sourceEnd + 1);
 		this.compilationUnit = compilationUnit;
 		if (compilationUnit != null) {
 			this.file = compilationUnit.getFile();
@@ -165,7 +167,8 @@ public class SourcePositionImpl implements SourcePosition, Serializable {
 			return "(unknown file)";
 		}
 		int ln = getLine();
-		return (ln >= 1) ? "(" + getFile().getAbsolutePath().replace('\\', '/').replace("C:/", "/") + ":" + ln + ")" : getFile().getAbsolutePath().replace('\\', '/').replace("C:/", "/");
+		return ((ln >= 1) ? "(" + getFile().getAbsolutePath().replace('\\', '/').replace("C:/", "/") + ":" + ln + ")" : getFile().getAbsolutePath().replace('\\', '/').replace("C:/", "/"))
+				+ "\n" + getSourceInfo();
 	}
 
 	@Override
@@ -193,4 +196,35 @@ public class SourcePositionImpl implements SourcePosition, Serializable {
 		return compilationUnit;
 	}
 
+	protected String getFragment(int start, int end) {
+		return "|" + start + ";" + end + "|" + getCompilationUnit().getOriginalSourceCode().substring(start, end + 1) + "|";
+	}
+
+	/**
+	 * @return source code of this {@link SourcePosition}
+	 */
+	public String getSourceFragment() {
+		return getFragment(getSourceStart(), getSourceEnd());
+	}
+
+	protected String getSourceInfo() {
+		return getSourceFragment();
+	}
+
+	/**
+	 * fails when `values` are not sorted ascending
+	 * It is used to check whether start/end values of SourcePosition are consistent
+	 */
+	protected static void checkArgsAreAscending(int...values) {
+		int last = -1;
+		for (int value : values) {
+			if (value < 0) {
+				throw new SpoonException("SourcePosition value must not be negative");
+			}
+			if (last > value) {
+				throw new SpoonException("SourcePosition values must be ascending or equal");
+			}
+			last = value;
+		}
+	}
 }
