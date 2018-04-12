@@ -975,6 +975,8 @@ public class JDTTreeBuilder extends ASTVisitor {
 	@Override
 	public boolean visit(ConstructorDeclaration constructorDeclaration, ClassScope scope) {
 		CtConstructor<Object> c = factory.Core().createConstructor();
+		c.setImplicit(scope.referenceContext.sourceStart() == constructorDeclaration.sourceStart());
+
 		if (constructorDeclaration.binding != null) {
 			c.setExtendedModifiers(getModifiers(constructorDeclaration.binding.modifiers, true, true));
 		}
