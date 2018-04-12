@@ -17,13 +17,58 @@
 package spoon.support.reflect.cu.position;
 
 import spoon.reflect.cu.CompilationUnit;
+import spoon.reflect.cu.SourcePosition;
+
+import java.io.File;
 
 /**
  * This class intends to create a source position containing only a compilation unit.
  */
-public class PartialSourcePositionImpl extends SourcePositionImpl {
+public class PartialSourcePositionImpl implements SourcePosition {
+
+	private CompilationUnit compilationUnit;
 
 	public PartialSourcePositionImpl(CompilationUnit compilationUnit) {
-		super(compilationUnit, -1, -1, null);
+		this.compilationUnit = compilationUnit;
+	}
+
+	@Override
+	public File getFile() {
+		return compilationUnit.getFile();
+	}
+
+	@Override
+	public CompilationUnit getCompilationUnit() {
+		return compilationUnit;
+	}
+
+	@Override
+	public int getLine() {
+		return -1;
+	}
+
+	@Override
+	public int getEndLine() {
+		return -1;
+	}
+
+	@Override
+	public int getColumn() {
+		return -1;
+	}
+
+	@Override
+	public int getEndColumn() {
+		return -1;
+	}
+
+	@Override
+	public int getSourceEnd() {
+		return -1;
+	}
+
+	@Override
+	public int getSourceStart() {
+		return -1;
 	}
 }
