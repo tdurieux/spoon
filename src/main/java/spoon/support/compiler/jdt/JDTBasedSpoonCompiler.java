@@ -38,13 +38,12 @@ import spoon.reflect.visitor.DefaultJavaPrettyPrinter;
 import spoon.reflect.visitor.Filter;
 import spoon.reflect.visitor.PrettyPrinter;
 import spoon.reflect.visitor.Query;
-import spoon.support.compiler.SnippetCompilationError;
-import spoon.support.sniper.SniperJavaPrettyPrinter;
 import spoon.support.QueueProcessingManager;
 import spoon.support.comparator.FixedOrderBasedOnFileNameCompilationUnitComparator;
 import spoon.support.compiler.SpoonProgress;
 import spoon.support.compiler.VirtualFolder;
 import spoon.support.modelobs.SourceFragmentCreator;
+import spoon.support.sniper.SniperJavaPrettyPrinter;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -56,6 +55,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -159,7 +159,7 @@ public class JDTBasedSpoonCompiler implements spoon.SpoonModelBuilder {
 
 		reportProblemsWhenCompiling(factory.getEnvironment());
 		factory.getEnvironment().debugMessage("compiled in " + (System.currentTimeMillis() - t) + " ms");
-		return probs.isEmpty();
+		return getFilteredProblems().isEmpty();
 	}
 
 	@Override
@@ -364,7 +364,7 @@ public class JDTBasedSpoonCompiler implements spoon.SpoonModelBuilder {
 		// here we build the model in the template factory
 		buildModel(units);
 
-		return probs.isEmpty();
+		return getFilteredProblems().isEmpty();
 	}
 
 	private static final CompilationUnitDeclaration[] EMPTY_RESULT = new CompilationUnitDeclaration[0];
@@ -584,14 +584,7 @@ public class JDTBasedSpoonCompiler implements spoon.SpoonModelBuilder {
 	 */
 	public void reportProblemsWhenCompiling(Environment environment) {
 		for (CategorizedProblem problem : getProblems()) {
-			if (problem != null) {
-				String message = problem.getMessage() + " at " + problem.getOriginatingFileName() + ":" + problem.getSourceLineNumber();
-				if (problem.isError()) {
-					throw new SnippetCompilationError(message);
-				} else {
-					environment.report(null, Level.WARN, message);
-				}
-			}
+			report(environment, problem);
 		}
 	}
 
@@ -633,6 +626,24 @@ public class JDTBasedSpoonCompiler implements spoon.SpoonModelBuilder {
 			}
 		}
 
+	}
+
+	/**
+	 * returns the list of current problems
+	 */
+	private List<CategorizedProblem> getFilteredProblems() {
+		List<CategorizedProblem> output = new ArrayList<>();
+		for (Iterator<CategorizedProblem> iterator = probs.iterator(); iterator.hasNext();) {
+			CategorizedProblem problem = iterator.next();
+			int problemId = problem.getID();
+			if (problem.isError()) {
+				if (!getEnvironment().getNoClasspath() || (problemId != IProblem.UndefinedType && problemId != IProblem.UndefinedName
+						&& problemId != IProblem.ImportNotFound)) {
+					output.add(problem);
+				}
+			}
+		}
+		return output;
 	}
 
 	/**
